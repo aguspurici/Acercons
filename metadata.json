@@ -1,0 +1,6 @@
+{
+  "name": "Acercons Estructuras Metálicas",
+  "description": "Página web corporativa premium para Acercons, especialistas en diseño, fabricación y montaje de estructuras metálicas, galpones y montajes industriales.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

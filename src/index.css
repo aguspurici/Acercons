@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+  --font-serif: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-industrial-orange: #F27D26;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c1c1f;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #F27D26;
+}
+
+/* LIGHT THEME OVERRIDES */
+.light-theme {
+  background-color: #F4F4F6 !important;
+  color: #171717 !important;
+}
+
+/* Scrollbars in light mode */
+.light-theme ::-webkit-scrollbar-track {
+  background: #F4F4F5;
+}
+.light-theme ::-webkit-scrollbar-thumb {
+  background: #D4D4D8;
+}
+
+/* Background resets */
+.light-theme section,
+.light-theme .bg-\[\#0A0A0A\],
+.light-theme .bg-\[\#0a0a0c\],
+.light-theme .bg-black {
+  background-color: #FFFFFF !important;
+  color: #171717 !important;
+}
+
+/* Background container for hero section */
+.light-theme .bg-\[\#050505\] {
+  background-color: #F4F4F5 !important;
+}
+
+/* Text Colors - Neutral Industrial Grays instead of Slate Blue Tint */
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme strong,
+.light-theme .text-white {
+  color: #171717 !important;
+}
+
+.light-theme p,
+.light-theme li,
+.light-theme .text-white\/60,
+.light-theme .text-white\/70,
+.light-theme .text-white\/80,
+.light-theme .text-neutral-300 {
+  color: #404040 !important;
+}
+
+.light-theme .text-white\/50,
+.light-theme .text-white\/40,
+.light-theme .text-white\/90,
+.light-theme .text-white\/95,
+.light-theme .text-neutral-400 {
+  color: #525252 !important;
+}
+
+/* Borders */
+.light-theme .border-white\/10,
+.light-theme .border-white\/5,
+.light-theme .border-neutral-800,
+.light-theme .border-white\/20 {
+  border-color: #E4E4E7 !important;
+}
+
+/* Specific Highlight Boxes & Cards */
+.light-theme .bg-white\/5,
+.light-theme .bg-black\/40,
+.light-theme .bg-black\/80,
+.light-theme .bg-white\/\[0\.08\],
+.light-theme .bg-\[\#0A0A0A\]\/90,
+.light-theme .bg-\[\#0A0A0A\]\/95,
+.light-theme .bg-\[\#0D0D0E\],
+.light-theme .bg-neutral-900 {
+  background-color: #FAFAFA !important;
+  border-color: #E4E4E7 !important;
+  color: #262626 !important;
+}
+
+/* Subtitle and overlay tag overrides */
+.light-theme .bg-\[\#0A0A0A\]\/95.border.border-white\/10 {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  border-color: #E4E4E7 !important;
+}
+
+/* Group active states & selections */
+.light-theme .group\/item:hover,
+.light-theme .group:hover .group-hover\:border-\[\#F27D26\]\/30 {
+  background-color: #F1F5F9 !important;
+  border-color: #F27D26 !important;
+}
+
+/* Interactive custom overlay tags and texts and CAD markings */
+.light-theme .text-white\/20 {
+  color: #A3A3A3 !important;
+}
+
+/* Exclusions - Keep orange background and text highlight unchanged */
+.light-theme .bg-\[\#F27D26\],
+.light-theme .text-\[\#F27D26\] {
+  color: #F27D26 !important;
+}
+.light-theme .bg-\[\#F27D26\] {
+  background-color: #F27D26 !important;
+  color: #000000 !important;
+}
+.light-theme .bg-\[\#F27D26\] * {
+  color: #000000 !important;
+}
+
+/* Explicit button text/hover overrides */
+.light-theme button.border-white\/20 {
+  border-color: #D4D4D8 !important;
+  color: #171717 !important;
+}
+.light-theme button.border-white\/20:hover {
+  background-color: #F4F4F5 !important;
+}
+
+/* Form Control Stylings inside contact form */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  background-color: #FFFFFF !important;
+  border-color: #E4E4E7 !important;
+  color: #171717 !important;
+}
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+  color: #A3A3A3 !important;
+}
+
+/* Grid & Dotted Architectural background highlights */
+.light-theme .opacity-5 {
+  opacity: 0.15 !important;
+}
+.light-theme .w-px.bg-white\/5 {
+  background-color: rgba(23, 23, 23, 0.08) !important;
+}
+
+/* Float Badge styled with Premium look in AboutUs */
+.light-theme .absolute.-bottom-6.-left-6.bg-\[\#0A0A0A\] {
+  background-color: #FFFFFF !important;
+  border-color: #E4E4E7 !important;
+}
+
+/* WhatsApp element exclusion */
+.light-theme a.bg-emerald-600 {
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+}
+
