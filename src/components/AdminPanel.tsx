@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createProject } from "../services/project.service"; //importa la función para crear proyectos en Firestore
 import { Project } from "../types";
 import {
   FileSpreadsheet,
@@ -59,14 +60,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     });
   };
 
-  const handleCreateProject = (e: React.FormEvent) => {
+  const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const defaultImage =
       "/src/assets/images/warehouse_finished_1779383995795.png";
 
-    const created: Project = {
-      id: "proj-custom-" + Math.floor(Math.random() * 10000),
+    const created = {
       title: newProject.title,
       category: newProject.category,
       area: newProject.area || "1,200 m²",
@@ -79,15 +79,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         newProject.description ||
         "Nave industrial metálica multipropósito de alto rendimiento estructural.",
       fullDescription:
-        newProject.fullDescription ||
-        "Proyecto de ingeniería civil que provee de luces libres e instalaciones de alta resistencia y durabilidad estructural, totalmente abulonado.",
+        newProject.fullDescription || "Proyecto de ingeniería civil...",
       image: newProject.images[0] || defaultImage,
       images: newProject.images.length > 0 ? newProject.images : [defaultImage],
       featured: false,
     };
 
-    onAddProject(created);
-    setNotification("¡Proyecto creado y sincronizado al portfolio con éxito!");
+    try {
+      console.log("ANTES DE FIREBASE");
+
+      const firebaseId = await createProject(created);
+
+      console.log("ID FIREBASE:", firebaseId);
+
+      onAddProject(created);
+
+      setNotification("¡Proyecto creado y guardado en Firebase!");
+    } catch (error) {
+      console.error("ERROR FIREBASE:", error);
+
+      setNotification("Error al guardar el proyecto.");
+
+      return;
+    }
 
     setNewProject({
       title: "",
@@ -510,7 +524,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     </span>
                     <div className="flex-1 h-px bg-neutral-200" />
                   </div>
-
 
                   {/* Input + botón agregar */}
                   <div className="flex gap-2">
