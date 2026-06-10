@@ -14,6 +14,7 @@ import { initialProjects } from "./initialData";
 import { Project } from "./types";
 import { Hammer, CircleAlert } from "lucide-react";
 
+// TEST DE GIT
 //import firebase
 import { createProject, getProjects } from "./services/project.service";
 
