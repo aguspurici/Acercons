@@ -101,123 +101,82 @@ export const initialProjects: Project[] = [
 export const initialServices: Service[] = [
   {
     id: "serv-1",
-    title: "Estructuras Metálicas",
+    title: "Galpones y Naves Industriales",
     description:
-      "Fabricación y montaje de estructuras metálicas para proyectos industriales y comerciales.",
+      "Construimos galpones metálicos completos para uso industrial, logístico o comercial en Córdoba y la región.",
     detailedDescription:
-      "Realizamos estructuras metálicas adaptadas a cada proyecto, incluyendo columnas, vigas, pórticos y refuerzos estructurales. Trabajamos con planos técnicos y fabricación en taller para garantizar un montaje preciso y seguro en obra.",
-    iconName: "Grid",
+      "Nos encargamos de todo: estructura metálica, cubierta, cerramientos y montaje. Trabajamos con cada cliente para definir dimensiones, accesos y terminaciones según el uso que le van a dar. El resultado es un galpón sólido, funcional y listo para trabajar.",
+    iconName: "Warehouse",
     features: [
-      "Fabricación a medida",
-      "Pórticos metálicos",
-      "Montaje en obra",
-      "Estructuras para galpones y naves"
-    ]
+      "Estructuras de acero a medida",
+      "Cubiertas y cerramientos metálicos",
+      "Amplias luces sin columnas intermedias",
+      "Montaje completo en obra",
+    ],
   },
   {
     id: "serv-2",
-    title: "Construcción de Galpones",
+    title: "Estructuras Metálicas",
     description:
-      "Construcción de galpones metálicos para uso industrial, comercial y logístico.",
+      "Fabricamos y montamos estructuras de acero para todo tipo de obras industriales y comerciales.",
     detailedDescription:
-      "Desarrollamos galpones completos según las necesidades de cada cliente. Nos encargamos de la estructura metálica, cubiertas, cerramientos y montaje general de la obra, priorizando funcionalidad y resistencia.",
-    iconName: "Warehouse",
+      "Desde columnas y vigas hasta pórticos complejos, fabricamos en nuestro taller y montamos en obra. Trabajamos con planos propios o del cliente, adaptándonos a los tiempos y condiciones de cada proyecto.",
+    iconName: "Grid",
     features: [
-      "Galpones industriales",
-      "Cubiertas metálicas",
-      "Amplias dimensiones",
-      "Montaje rápido"
-    ]
+      "Columnas, vigas y pórticos",
+      "Fabricación en taller propio",
+      "Montaje con equipos de izaje",
+      "Escaleras, plataformas y pasarelas",
+    ],
   },
   {
     id: "serv-3",
-    title: "Techos Industriales",
+    title: "Portones y Obras Menores",
     description:
-      "Instalación y reparación de techos metálicos para industrias y depósitos.",
+      "Fabricamos portones, barandas, rejas y todo tipo de trabajo metálico a medida.",
     detailedDescription:
-      "Trabajamos en colocación y renovación de cubiertas metálicas utilizando chapas galvanizadas y sistemas de aislación térmica. También realizamos canaletas y soluciones de desagüe para techos industriales.",
-    iconName: "Layers",
-    features: [
-      "Chapas galvanizadas",
-      "Aislación térmica",
-      "Canaletas y desagües",
-      "Reparación de cubiertas"
-    ]
-  },
-  {
-    id: "serv-4",
-    title: "Montajes Metálicos",
-    description:
-      "Montaje de estructuras metálicas con equipos y personal especializado.",
-    detailedDescription:
-      "Realizamos montaje de estructuras en obra utilizando equipos de izaje y herramientas adecuadas para cada proyecto. Coordinamos las tareas para lograr instalaciones seguras y eficientes.",
-    iconName: "Wrench",
-    features: [
-      "Montaje en altura",
-      "Equipos de izaje",
-      "Personal capacitado",
-      "Trabajos industriales"
-    ]
-  },
-  {
-    id: "serv-5",
-    title: "Soldadura Industrial",
-    description:
-      "Trabajos de soldadura para estructuras y piezas metálicas.",
-    detailedDescription:
-      "Realizamos soldaduras en taller y en obra para diferentes tipos de estructuras metálicas. Priorizamos resistencia, prolijidad y correcta terminación en cada trabajo.",
-    iconName: "Flame",
-    features: [
-      "Soldadura MIG y eléctrica",
-      "Trabajos en taller",
-      "Reparaciones metálicas",
-      "Uniones estructurales"
-    ]
-  },
-  {
-    id: "serv-6",
-    title: "Obras Metálicas",
-    description:
-      "Fabricación de escaleras, barandas, plataformas y estructuras metálicas.",
-    detailedDescription:
-      "Desarrollamos soluciones metálicas funcionales para industrias, comercios y obras particulares. Fabricamos escaleras, portones, plataformas y estructuras adaptadas a cada necesidad.",
+      "Para obras más chicas o trabajos puntuales, fabricamos e instalamos portones corredizos, batientes, barandas, rejas y estructuras metálicas de menor escala. Mismo proceso, misma atención que en las obras grandes.",
     iconName: "Construction",
     features: [
-      "Escaleras metálicas",
-      "Barandas",
-      "Plataformas",
-      "Portones y estructuras"
-    ]
-  }
+      "Portones corredizos y batientes",
+      "Barandas y rejas",
+      "Soldadura en taller y en obra",
+      "Tratamiento anticorrosivo",
+    ],
+  },
 ];
 
 export const initialWorkSteps: WorkStep[] = [
   {
     step: 1,
-    title: "Diseño e Ingeniería",
-    subtitle: "Precisión en modelado 3D",
-    description: "Analizamos los requerimientos estructurales empleando cálculo computacional y modelado BIM 3D. Definimos materiales, cargas vivas, cargas sísmicas, vientos y optimizamos el consumo de acero para asegurar la máxima viabilidad de la inversión antes de iniciar la producción.",
-    iconName: "DraftingCompass"
+    title: "Consulta y Medición",
+    subtitle: "Arrancamos desde el terreno",
+    description:
+      "Nos juntamos con el cliente, vemos el lugar y entendemos qué necesita. Con esa información armamos un presupuesto claro y sin sorpresas.",
+    iconName: "DraftingCompass",
   },
   {
     step: 2,
     title: "Fabricación",
-    subtitle: "Calidad controlada en talleres",
-    description: "Las piezas metálicas se cortan, perforan, enderezan y sueldan en nuestros talleres industriales. Aplicando maquinarias semiautomatizadas CNC, logramos un ensamble impecable de las vigas y columnas bajo soldadura inspeccionada al 100% por inspectores calificados.",
-    iconName: "Factory"
+    subtitle: "Todo se hace en nuestro taller",
+    description:
+      "Cortamos, soldamos y preparamos cada pieza en nuestro taller. Antes de salir a obra, revisamos que todo esté bien terminado y listo para montar.",
+    iconName: "Factory",
   },
   {
     step: 3,
     title: "Montaje en Obra",
-    subtitle: "Logística y erección rápida",
-    description: "Desplegamos equipos de operarios experimentados con grúas de gran tonelaje, manipuladores telescópicos e instrumental de topografía satelital. Izamos, nivelamos y abulonamos de manera segura las columnas logrando levantar la estructura completa en plazos ajustados con seguridad rigurosa.",
-    iconName: "Compass"
+    subtitle: "Personal y equipos propios",
+    description:
+      "Llevamos nuestro equipo y los elementos necesarios para montar la estructura en el lugar. Coordinamos los tiempos para no generar demoras en la obra del cliente.",
+    iconName: "Compass",
   },
   {
     step: 4,
-    title: "Entrega Certificada",
-    subtitle: "Inspección final y recepción",
-    description: "Inspeccionamos cada conexión, la estanqueidad pluvial de cubiertas y la protección de los perfiles metálicos contra el óxido. Entregamos la obra con su libro de ingeniería conforme a obra, certificaciones de ensayos no destructivos de soldaduras y garantía estructural por escrito.",
-    iconName: "Award"
-  }
+    title: "Entrega",
+    subtitle: "El trabajo terminado",
+    description:
+      "Antes de entregar recorremos la obra con el cliente, revisamos terminaciones y nos aseguramos de que todo quedó como se acordó.",
+    iconName: "Award",
+  },
 ];

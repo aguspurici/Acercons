@@ -98,29 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {isDarkMode ? <Sun className="w-4 h-4 text-[#F27D26]" /> : <Moon className="w-4 h-4 text-[#F27D26]" />}
             </button>
 
-            {/* View switcher for admin panel */}
-            {/* <button
-              onClick={() => setIsAdminView(!isAdminView)}
-              className={`flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest border transition-all duration-300 rounded-none cursor-pointer ${
-                isAdminView
-                  ? "bg-[#F27D26] text-black border-[#F27D26] shadow-lg shadow-[#F27D26]/20"
-                  : isDarkMode
-                    ? "bg-transparent text-white/80 border-white/20 hover:border-[#F27D26] hover:text-white"
-                    : "bg-transparent text-neutral-800 border-neutral-300 hover:border-[#F27D26] hover:text-neutral-950"
-              }`}
-            >
-              {isAdminView ? (
-                <>
-                  <Eye className="w-3.5 h-3.5" />
-                  Ver Sitio
-                </>
-              ) : (
-                <>
-                  <LayoutDashboard className="w-3.5 h-3.5" />
-                  Admin Terminal
-                </>
-              )}
-            </button> */}
+           
 
             {/* Quote Button */}
             <button
