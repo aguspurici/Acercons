@@ -141,7 +141,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
                 isDarkMode ? "border-white/5" : "border-neutral-100"
               }`}>
                 <img
-                  src="/src/assets/images/frente.webp"
+                  src="/images/frente.webp"
                   alt="Nave Industrial Acercons"
                   className="w-full h-full object-cover transition-transform duration-[10000ms] hover:scale-105"
                   referrerPolicy="no-referrer"

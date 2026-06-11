@@ -27,7 +27,7 @@ export const Logo: React.FC<LogoProps> = ({
 
   const logoContent = (
     <img
-      src="/src/assets/images/logo.png"
+      src="/images/logo.png"
       alt="Acercons"
       className={`${imgHeight} w-auto object-contain select-none ${className}`}
     />
