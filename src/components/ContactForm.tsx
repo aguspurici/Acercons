@@ -153,7 +153,7 @@ export const ContactForm: React.FC = () => {
 
               <div className="relative aspect-[16/10] border border-white/10 overflow-hidden">
                 <img
-                  src="/src/assets/images/maps.webp"
+                  src="/images/maps.webp"
                   alt="Mapa Acercons"
                   className="w-full h-full object-cover"
                 />

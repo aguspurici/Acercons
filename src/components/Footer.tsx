@@ -103,7 +103,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           >
             <span>Creado por</span>
             <img
-              src="/src/assets/images/logoElemental.png"
+              src="/images/logoElemental.png"
               alt="Elemental Webs"
               className="h-5 object-contain"
             />

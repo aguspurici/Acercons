@@ -52,7 +52,7 @@ const mapCategory = (cat: string): GalleryItem["category"] => {
       category: "galpones",
       title: "Obras de Galpón",
       location: "Zárate, Buenos Aires",
-      image: "/src/assets/images/cartel.webp",
+      image: "/images/cartel.webp",
       size: "large",
     },
     {
@@ -60,7 +60,7 @@ const mapCategory = (cat: string): GalleryItem["category"] => {
       category: "estructuras",
       title: "portones metalicos",
       location: "Campana, Buenos Aires",
-      image: "/src/assets/images/frente.webp",
+      image: "/images/frente.webp",
       size: "medium",
     },
     {
@@ -68,23 +68,23 @@ const mapCategory = (cat: string): GalleryItem["category"] => {
       category: "soldadura",
       title: "escaleras metalicas",
       location: "San Martín, GBA",
-      image: "/src/assets/images/escaleras.webp",
+      image: "/images/escaleras.webp",
       size: "medium",
     },
     {
       id: "gal-4",
       category: "montaje",
-      title: "Crane Lift of Heavy Columns",
+      title: "Izaje de Columnas",
       location: "Rosario, Santa Fe",
-      image: "/src/assets/images/balcon.webp",
+      image: "/images/balcon.webp",
       size: "large",
     },
     {
       id: "gal-5",
       category: "estructuras",
-      title: "Steel Truss Portal Connections",
+      title: "Pórticos Metálicos",
       location: "Bahía Blanca, Buenos Aires",
-      image: "/src/assets/images/estructura.webp",
+      image: "/images/estructura.webp",
       size: "small",
     }
     

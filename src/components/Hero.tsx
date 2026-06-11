@@ -51,7 +51,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
     >
       <div className="absolute inset-0 z-0">
         <img
-          src="/src/assets/images/balcon.webp"
+          src="/images/balcon.webp"
           alt="Acercons Steel Construction"
           className={`w-full h-full object-cover object-center scale-100 select-none pointer-events-none transition-all duration-500 ${
             isDarkMode ? "opacity-25" : "opacity-15"
