@@ -16,15 +16,22 @@ export const useProjects = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "projects"), (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Project[];
-      setProjects(data);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    const unsubscribe = onSnapshot(
+  collection(db, "projects"),
+  (snapshot) => {
+    const data = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Project[];
+
+    setProjects(data);
+    setLoading(false);
+  },
+  (error) => {
+    console.error(error);
+    setLoading(false);
+  }
+);
   }, []);
 
   const addProject = async (project: Omit<Project, "id">) => {

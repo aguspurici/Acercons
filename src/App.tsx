@@ -31,8 +31,6 @@ function LandingPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  if (loading) return null;
-
   return (
     <div
       className={`font-sans min-h-screen transition-colors duration-500 selection:bg-[#F27D26]/30 ${

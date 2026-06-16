@@ -1,5 +1,12 @@
-import React from "react";
-import { ArrowRight, FileText, Trophy, Landmark, Users, ShieldAlert } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  ArrowRight,
+  FileText,
+  Trophy,
+  Landmark,
+  Users,
+  ShieldAlert,
+} from "lucide-react";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -7,7 +14,11 @@ interface HeroProps {
   isDarkMode?: boolean;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode = true }) => {
+export const Hero: React.FC<HeroProps> = ({
+  onNavigate,
+  onOpenAdmin,
+  isDarkMode = true,
+}) => {
   const whatsappBudgetUrl =
     "https://wa.me/543513853120?text=Hola,%20quisiera%20solicitar%20un%20presupuesto";
 
@@ -42,6 +53,22 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
     },
   ];
 
+const heroImages = [
+  "public/images/frente.webp",
+  "public/images/balcon3.png",
+  "public/images/estructura.png",
+];
+
+const [currentImage, setCurrentImage] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentImage((prev) => (prev + 1) % heroImages.length);
+  }, 4000);
+
+  return () => clearInterval(interval);
+}, []);
+
   return (
     <section
       id="hero"
@@ -57,16 +84,24 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
             isDarkMode ? "opacity-25" : "opacity-15"
           }`}
           referrerPolicy="no-referrer"
-          style={{ filter: isDarkMode ? "brightness(0.3) contrast(1.2)" : "brightness(1) contrast(0.95)" }}
+          style={{
+            filter: isDarkMode
+              ? "brightness(0.3) contrast(1.2)"
+              : "brightness(1) contrast(0.95)",
+          }}
         />
-        <div className={`absolute inset-0 bg-gradient-to-tr transition-colors duration-500 ${
-          isDarkMode
-            ? "from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent"
-            : "from-[#F4F4F6] via-[#F4F4F6]/95 to-[#F4F4F6]/30"
-        }`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] blur-[120px] pointer-events-none transition-colors duration-500 ${
-          isDarkMode ? "bg-[#F27D26]/5" : "bg-[#F27D26]/10"
-        }`} />
+        <div
+          className={`absolute inset-0 bg-gradient-to-tr transition-colors duration-500 ${
+            isDarkMode
+              ? "from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent"
+              : "from-[#F4F4F6] via-[#F4F4F6]/95 to-[#F4F4F6]/30"
+          }`}
+        />
+        <div
+          className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] blur-[120px] pointer-events-none transition-colors duration-500 ${
+            isDarkMode ? "bg-[#F27D26]/5" : "bg-[#F27D26]/10"
+          }`}
+        />
       </div>
 
       <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
@@ -79,29 +114,37 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex-grow flex flex-col justify-center my-auto w-full text-left pt-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center w-full">
-
           <div className="lg:col-span-7 space-y-6">
             <span className="text-[#F27D26] text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
-              <span className="w-8 h-[1px] bg-[#F27D26]"></span> Córdoba, Argentina
+              <span className="w-8 h-[1px] bg-[#F27D26]"></span> Córdoba,
+              Argentina
             </span>
 
-            <h2 className={`text-4xl sm:text-6xl font-black leading-[0.95] tracking-tighter uppercase transition-colors duration-500 ${
-              isDarkMode ? "text-white" : "text-neutral-900"
-            }`}>
+            <h2
+              className={`text-4xl sm:text-6xl font-black leading-[0.95] tracking-tighter uppercase transition-colors duration-500 ${
+                isDarkMode ? "text-white" : "text-neutral-900"
+              }`}
+            >
               Estructuras <br />
-              <span className="text-[#F27D26]">Metálicas</span> a medida
+              <span className="text-[#F27D26]">Metálicas</span>
               <br />
-              <span className={`text-xl sm:text-3xl mt-3 block font-semibold lowercase tracking-tight normal-case transition-colors duration-500 ${
-                isDarkMode ? "text-white/90" : "text-neutral-800"
-              }`}>
-                galpones, portones y construcción industrial
+              <span
+                className={`text-xl sm:text-3xl mt-3 block font-semibold lowercase tracking-tight normal-case transition-colors duration-500 ${
+                  isDarkMode ? "text-white/90" : "text-neutral-800"
+                }`}
+              >
+                galpones y construcción industrial
               </span>
             </h2>
 
-            <p className={`max-w-xl text-xs sm:text-sm md:text-base leading-relaxed font-normal transition-colors duration-500 ${
-              isDarkMode ? "text-white/60" : "text-neutral-600"
-            }`}>
-              Fabricamos y montamos estructuras metálicas en Córdoba y la región. Trabajamos con cada cliente desde el diseño hasta la entrega, sin intermediarios.
+            <p
+              className={`max-w-xl text-xs sm:text-sm md:text-base leading-relaxed font-normal transition-colors duration-500 ${
+                isDarkMode ? "text-white/60" : "text-neutral-600"
+              }`}
+            >
+              Fabricamos y montamos estructuras metálicas en Córdoba y la
+              región. Trabajamos con cada cliente desde el diseño hasta la
+              entrega, sin intermediarios.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -128,50 +171,93 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
           </div>
 
           <div className="lg:col-span-5 relative w-full h-full flex items-center justify-center">
-            <div className={`absolute -inset-3 border pointer-events-none hidden sm:block transition-colors duration-500 ${
-              isDarkMode ? "border-white/5" : "border-neutral-200"
-            }`} />
+            <div
+              className={`absolute -inset-3 border pointer-events-none hidden sm:block transition-colors duration-500 ${
+                isDarkMode ? "border-white/5" : "border-neutral-200"
+              }`}
+            />
 
-            <div className={`relative w-full aspect-[4/3] sm:aspect-video lg:aspect-[4/5] p-2.5 overflow-hidden shadow-2xl transition-all duration-500 ${
-              isDarkMode ? "bg-black border-white/10" : "bg-white border-neutral-200"
-            }`}>
+            <div
+              className={`relative w-[120%] h-[700px] -ml-[10%] p-2.5 overflow-hidden shadow-2xl
+                isDarkMode
+                  ? "bg-black border-white/10"
+                  : "bg-white border-neutral-200"
+              }`}
+            >
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-[#F27D26]" />
 
-              <div className={`relative w-full h-full overflow-hidden border ${
-                isDarkMode ? "border-white/5" : "border-neutral-100"
-              }`}>
-                <img
-                  src="/images/frente.webp"
-                  alt="Nave Industrial Acercons"
-                  className="w-full h-full object-cover transition-transform duration-[10000ms] hover:scale-105"
-                  referrerPolicy="no-referrer"
+              <div
+                className={`relative w-full h-full overflow-hidden border ${
+                  isDarkMode ? "border-white/5" : "border-neutral-100"
+                }`}
+              >
+               <div className="relative w-full h-full">
+  {heroImages.map((image, index) => (
+    <img
+      key={image}
+      src={image}
+      alt="Trabajo Acercons"
+      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+        index === currentImage ? "opacity-100" : "opacity-0"
+      }`}
+      referrerPolicy="no-referrer"
+    />
+  ))}
+
+
+  {/* Indicadores */}
+  <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+    {heroImages.map((_, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentImage(index)}
+        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+          currentImage === index
+            ? "bg-[#F27D26] scale-125"
+            : "bg-white/50 hover:bg-white/80"
+        }`}
+      />
+    ))}
+  </div>
+</div>
+
+                <div
+                  className={`absolute inset-0 pointer-events-none transition-all duration-500 ${
+                    isDarkMode
+                      ? "bg-gradient-to-t from-black via-black/25 to-black/5"
+                      : "bg-gradient-to-t from-black/80 via-black/20 to-transparent"
+                  }`}
                 />
 
-                <div className={`absolute inset-0 pointer-events-none transition-all duration-500 ${
-                  isDarkMode
-                    ? "bg-gradient-to-t from-black via-black/25 to-black/5"
-                    : "bg-gradient-to-t from-black/80 via-black/20 to-transparent"
-                }`} />
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-[0.03]"
+                  style={{
+                    backgroundImage: `radial-gradient(#fff 0.8px, transparent 0.8px)`,
+                    backgroundSize: "12px 12px",
+                  }}
+                />
 
-                <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
-                  style={{ backgroundImage: `radial-gradient(#fff 0.8px, transparent 0.8px)`, backgroundSize: '12px 12px' }} />
-
-                <div className={`absolute bottom-3 left-3 right-3 p-4 font-sans text-left space-y-1 block shadow-lg backdrop-blur-sm transition-all duration-500 ${
-                  isDarkMode ? "bg-[#0A0A0A]/95 border-white/10" : "bg-white/95 border-neutral-200"
-                }`}>
+                <div
+                  className={`absolute bottom-3 left-3 right-3 p-4 font-sans text-left space-y-1 block shadow-lg backdrop-blur-sm transition-all duration-500 ${
+                    isDarkMode
+                      ? "bg-[#0A0A0A]/95 border-white/10"
+                      : "bg-white/95 border-neutral-200"
+                  }`}
+                >
                   <span className="text-[8px] font-black text-[#F27D26] uppercase tracking-widest block font-sans">
                     Trabajo realizado • Córdoba
                   </span>
-                  <div className={`text-xs font-bold uppercase tracking-tight line-clamp-1 transition-colors duration-500 ${
-                    isDarkMode ? "text-white" : "text-neutral-900"
-                  }`}>
+                  <div
+                    className={`text-xs font-bold uppercase tracking-tight line-clamp-1 transition-colors duration-500 ${
+                      isDarkMode ? "text-white" : "text-neutral-900"
+                    }`}
+                  >
                     Portón Metálico
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -186,15 +272,21 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenAdmin, isDarkMode 
                   : "bg-white border-neutral-200 hover:border-[#F27D26]/30 hover:bg-neutral-50"
               }`}
             >
-              <span className="text-3xl font-black text-[#F27D26] tracking-tight">{stat.value}</span>
-              <span className={`text-[10px] uppercase tracking-widest font-bold mt-1 transition-colors duration-500 ${
-                isDarkMode ? "text-white/40" : "text-neutral-500"
-              }`}>
+              <span className="text-3xl font-black text-[#F27D26] tracking-tight">
+                {stat.value}
+              </span>
+              <span
+                className={`text-[10px] uppercase tracking-widest font-bold mt-1 transition-colors duration-500 ${
+                  isDarkMode ? "text-white/40" : "text-neutral-500"
+                }`}
+              >
                 {stat.label}
               </span>
-              <p className={`text-[11px] mt-1.5 leading-tight transition-colors duration-500 ${
-                isDarkMode ? "text-white/50" : "text-neutral-600"
-              }`}>
+              <p
+                className={`text-[11px] mt-1.5 leading-tight transition-colors duration-500 ${
+                  isDarkMode ? "text-white/50" : "text-neutral-600"
+                }`}
+              >
                 {stat.description}
               </p>
             </div>
