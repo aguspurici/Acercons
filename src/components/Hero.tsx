@@ -54,9 +54,9 @@ export const Hero: React.FC<HeroProps> = ({
   ];
 
 const heroImages = [
-  "public/images/frente.webp",
-  "public/images/balcon3.png",
-  "public/images/estructura.png",
+  "/images/balcon3.png",
+  "/images/estructura.png",
+  "/images/frente.webp",
 ];
 
 const [currentImage, setCurrentImage] = useState(0);
