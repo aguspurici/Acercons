@@ -86,7 +86,7 @@ export const AboutUs: React.FC = () => {
               <div className="overflow-hidden rounded-none relative group">
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-10 opacity-70 group-hover:opacity-60 transition-opacity duration-300" />
                 <img
-                  src="/images/cartel.webp"
+                  src="/images/estructura.png"
                   alt="Taller Acercons"
                   className="w-full object-cover h-[500px] scale-100 group-hover:scale-105 transition-transform duration-[4000ms]"
                   referrerPolicy="no-referrer"
