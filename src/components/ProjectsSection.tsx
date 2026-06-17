@@ -275,7 +275,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                   <div className="flex items-center justify-between pt-3 border-t border-white/5 text-[9px] text-white/40 font-bold uppercase tracking-widest">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-[#F27D26]" />
-                      {project.location.split(",")[0] || project.location}
+                      {project.location?.split(",")[0] || project.location || "Córdoba"}
                     </span>
                     <span className="text-[#F27D26]">{project.area}</span>
                   </div>
