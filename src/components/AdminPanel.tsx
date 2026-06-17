@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Project } from "../types";
+import { Project, PROJECT_CATEGORIES, ProjectCategory } from "../types";
 import {
   FileSpreadsheet,
   PlusCircle,
@@ -9,7 +9,6 @@ import {
   Sparkles,
   Trash2,
   Eye,
-  MapPin,
   Send,
   X,
   Plus,
@@ -21,23 +20,12 @@ import {
 const inputClass =
   "w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 focus:ring-0";
 
-const categoryOptions = [
-  "Estructuras Metálicas",
-  "Construcción de Galpones",
-  "Montajes Metálicos",
-  "Soldadura Industrial",
-  "Obras Metálicas",
-];
+const categoryOptions = PROJECT_CATEGORIES;
 
 type ProjectFormData = {
   title: string;
-  category: string;
-  area: string;
-  year: string;
-  location: string;
-  steelWeight: string;
+  category: ProjectCategory;
   description: string;
-  fullDescription: string;
   images: string[];
 };
 
@@ -82,7 +70,9 @@ const ProjectForm = ({
         </label>
         <select
           value={data.category}
-          onChange={(e) => setData({ ...data, category: e.target.value })}
+          onChange={(e) =>
+            setData({ ...data, category: e.target.value as ProjectCategory })
+          }
           className={inputClass}
         >
           {categoryOptions.map((c) => (
@@ -92,79 +82,18 @@ const ProjectForm = ({
           ))}
         </select>
       </div>
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-          Superficie Estimada (m²)
-        </label>
-        <input
-          type="text"
-          placeholder="Ej: 3,500 m²"
-          value={data.area}
-          onChange={(e) => setData({ ...data, area: e.target.value })}
-          className={inputClass}
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-          Ubicación de la Obra
-        </label>
-        <input
-          type="text"
-          placeholder="Ej: Pilar, Buenos Aires"
-          value={data.location}
-          onChange={(e) => setData({ ...data, location: e.target.value })}
-          className={inputClass}
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-          Año de Finalización
-        </label>
-        <input
-          type="text"
-          placeholder="Ej: 2026"
-          value={data.year}
-          onChange={(e) => setData({ ...data, year: e.target.value })}
-          className={inputClass}
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-          Peso de Acero Total (Toneladas)
-        </label>
-        <input
-          type="number"
-          placeholder="Ej: 145"
-          value={data.steelWeight}
-          onChange={(e) => setData({ ...data, steelWeight: e.target.value })}
-          className={inputClass}
-        />
-      </div>
     </div>
 
     <div className="space-y-1.5">
       <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-        Descripción Corta
-      </label>
-      <input
-        type="text"
-        required
-        placeholder="Ej: Pórticos soldados por arco sumergido"
-        value={data.description}
-        onChange={(e) => setData({ ...data, description: e.target.value })}
-        className={inputClass}
-      />
-    </div>
-
-    <div className="space-y-1.5">
-      <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-        Memoria e Información Detallada
+        Descripción
       </label>
       <textarea
         rows={4}
-        placeholder="Trazabilidad total de colada perfiles de acero HEB..."
-        value={data.fullDescription}
-        onChange={(e) => setData({ ...data, fullDescription: e.target.value })}
+        required
+        placeholder="Ej: Construcción de un galpón logístico de gran escala con estructura metálica..."
+        value={data.description}
+        onChange={(e) => setData({ ...data, description: e.target.value })}
         className="w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 resize-none focus:ring-0"
       />
     </div>
@@ -267,13 +196,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const emptyForm: ProjectFormData = {
     title: "",
-    category: "Construcción de Galpones",
-    area: "",
-    year: "2026",
-    location: "",
-    steelWeight: "",
+    category: PROJECT_CATEGORIES[0],
     description: "",
-    fullDescription: "",
     images: [],
   };
 
@@ -309,17 +233,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       id: "proj-custom-" + Math.floor(Math.random() * 10000),
       title: newProject.title,
       category: newProject.category,
-      area: newProject.area || "1,200 m²",
-      year: newProject.year || "2026",
-      location: newProject.location || "Sin especificar",
-      steelWeight: newProject.steelWeight
-        ? `${newProject.steelWeight} Toneladas`
-        : undefined,
       description: newProject.description,
-      fullDescription: newProject.fullDescription,
       image: newProject.images[0] || "",
       images: newProject.images,
-      featured: true,
     };
     onAddProject(created);
     showNotification("¡Proyecto creado y sincronizado al portfolio con éxito!");
@@ -334,12 +250,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setEditProject({
       title: proj.title,
       category: proj.category,
-      area: proj.area,
-      year: proj.year,
-      location: proj.location,
-      steelWeight: proj.steelWeight?.replace(" Toneladas", "") || "",
       description: proj.description,
-      fullDescription: proj.fullDescription,
       images: proj.images,
     });
     setEditUrlInput("");
@@ -369,14 +280,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     onUpdateProject(selectedProject.id, {
       title: editProject.title,
       category: editProject.category,
-      area: editProject.area,
-      year: editProject.year,
-      location: editProject.location,
-      steelWeight: editProject.steelWeight
-        ? `${editProject.steelWeight} Toneladas`
-        : undefined,
       description: editProject.description,
-      fullDescription: editProject.fullDescription,
       image: editProject.images[0] || "",
       images: editProject.images,
     });
@@ -537,18 +441,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         <h4 className="text-sm font-bold uppercase text-neutral-900 line-clamp-1">
                           {proj.title}
                         </h4>
-                        <span className="text-[10px] text-neutral-500 flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-[#F27D26]" />
-                          {proj.location} • {proj.area}
+                        <span className="text-[10px] text-neutral-500 line-clamp-1">
+                          {proj.description}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 self-end sm:self-auto">
-                      {proj.featured && (
-                        <span className="text-[9px] font-bold text-white bg-neutral-950 px-2 py-1 uppercase">
-                          Destacado
-                        </span>
-                      )}
                       <span className="text-[9px] font-bold text-neutral-400 uppercase bg-neutral-100 border border-neutral-200 px-2 py-1">
                         {proj.images.length} foto
                         {proj.images.length !== 1 ? "s" : ""}

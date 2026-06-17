@@ -1,16 +1,20 @@
+export const PROJECT_CATEGORIES = [
+  "Galpones y Naves Industriales",
+  "Estructuras Metálicas",
+  "Portones y Obras Menores",
+  "Escaleras y Pasarelas",
+  "Techos Metálicos",
+] as const;
+
+export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number];
+
 export interface Project {
   id: string;
   title: string;
-  category: string;
+  category: ProjectCategory;
   description: string;
-  fullDescription: string;
   image: string;
-  area: string;
-  year: string;
-  location: string;
-  steelWeight?: string;
   images: string[];
-  featured: boolean;
 }
 
 export interface Service {
