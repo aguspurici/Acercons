@@ -85,7 +85,7 @@ export const ServicesList: React.FC = () => {
                       <div className="bg-[#F27D26]/10 p-0.5 rounded-none text-[#F27D26]">
                         <Check className="w-3 h-3" />
                       </div>
-                      <span className="group-hover:text-white transition-colors">{feature}</span>
+                      <span className="text-white/60 group-hover:text-white transition-colors duration-300">{feature}</span>
                     </li>
                   ))}
                 </ul>

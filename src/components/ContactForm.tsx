@@ -142,23 +142,29 @@ export const ContactForm: React.FC = () => {
             </div>
 
             {/* MAP */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-[#F27D26]" />
+{/* MAP */}
+<div className="space-y-4">
+  <div className="flex items-center gap-2">
+    <Info className="w-4 h-4 text-[#F27D26]" />
 
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40">
-                  UBICACIÓN
-                </h4>
-              </div>
+    <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+      UBICACIÓN
+    </h4>
+  </div>
 
-              <div className="relative aspect-[16/10] border border-white/10 overflow-hidden">
-                <img
-                  src="/images/maps.webp"
-                  alt="Mapa Acercons"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
+  <div className="relative aspect-[16/10] border border-white/10 overflow-hidden">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d425.4154480414981!2d-64.14208072441535!3d-31.460283745036552!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9432bd006005b2e3%3A0x18ae33a0e3c0133d!2sACERCONS%20Estructuras%20Metalicas!5e0!3m2!1ses!2sar!4v1781764338365!5m2!1ses!2sar"
+      className="w-full h-full"
+      style={{ border: 0 }}
+      loading="lazy"
+      allowFullScreen
+      referrerPolicy="no-referrer-when-downgrade"
+      title="Ubicación Acercons"
+    />
+  </div>
+
+</div>
 
             {/* WHATSAPP BUTTON */}
             <div>
