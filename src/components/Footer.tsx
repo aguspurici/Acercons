@@ -99,13 +99,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             href="https://elementalwebs.com"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-white/60 group-hover:text-white transition-colors"
           >
             <span>Creado por</span>
             <img
               src="/images/LogoElemental.png"
               alt="Elemental Webs"
-              className="h-5 object-contain"
+              className="h-5 object-contain dark:brightness-100 brightness-0"
             />
           </a>
         </div>
