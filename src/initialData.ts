@@ -37,7 +37,7 @@ export const initialServices: Service[] = [
   },
   {
     id: "serv-3",
-    title: "Portones y Obras Menores",
+    title: "Obras Menores",
     description:
       "Fabricamos portones, barandas, rejas y todo tipo de trabajo metálico a medida.",
     detailedDescription:

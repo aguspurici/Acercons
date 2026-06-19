@@ -1,7 +1,7 @@
 export const PROJECT_CATEGORIES = [
   "Galpones y Naves Industriales",
   "Estructuras Metálicas",
-  "Portones y Obras Menores",
+  "Obras Menores",
   "Escaleras y Pasarelas",
   "Techos Metálicos",
 ] as const;

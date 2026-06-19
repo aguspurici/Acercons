@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Project, PROJECT_CATEGORIES, ProjectCategory } from "../types";
+import { storage } from "../lib/firebase";
+import { compressImage } from "../lib/Imagecompression";
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import {
   FileSpreadsheet,
   PlusCircle,
@@ -11,9 +18,10 @@ import {
   Eye,
   Send,
   X,
-  Plus,
   LogOut,
   Pencil,
+  UploadCloud,
+  Loader2,
 } from "lucide-react";
 
 // — Constantes fuera del componente —
@@ -22,6 +30,8 @@ const inputClass =
 
 const categoryOptions = PROJECT_CATEGORIES;
 
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB por foto
+
 type ProjectFormData = {
   title: string;
   category: ProjectCategory;
@@ -29,147 +39,268 @@ type ProjectFormData = {
   images: string[];
 };
 
+// Sube un archivo a Firebase Storage dentro de la carpeta "projects/"
+// y devuelve la URL pública de descarga. onProgress reporta el % (0-100).
+const uploadImageToStorage = (
+  file: File,
+  onProgress: (pct: number) => void,
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uniqueName = `${Date.now()}-${Math.floor(Math.random() * 10000)}-${file.name}`;
+    const storageRef = ref(storage, `projects/${uniqueName}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const pct = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+        );
+        onProgress(pct);
+      },
+      (error) => reject(error),
+      async () => {
+        try {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(url);
+        } catch (err) {
+          reject(err);
+        }
+      },
+    );
+  });
+};
+
 // — ProjectForm fuera del componente —
 const ProjectForm = ({
   data,
   setData,
-  urlVal,
-  setUrlVal,
-  onAddImg,
-  onRemoveImg,
   onSubmit,
   submitLabel,
 }: {
   data: ProjectFormData;
   setData: (d: ProjectFormData) => void;
-  urlVal: string;
-  setUrlVal: (v: string) => void;
-  onAddImg: () => void;
-  onRemoveImg: (i: number) => void;
   onSubmit: (e: React.FormEvent) => void;
   submitLabel: string;
-}) => (
-  <form onSubmit={onSubmit} className="space-y-6 text-left">
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-          Título de la Obra / Empresa
-        </label>
-        <input
-          type="text"
-          required
-          placeholder="Ej: Depósito de Logística del Sur"
-          value={data.title}
-          onChange={(e) => setData({ ...data, title: e.target.value })}
-          className={inputClass}
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-          Especialidad / Categoría
-        </label>
-        <select
-          value={data.category}
-          onChange={(e) =>
-            setData({ ...data, category: e.target.value as ProjectCategory })
-          }
-          className={inputClass}
-        >
-          {categoryOptions.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-    <div className="space-y-1.5">
-      <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-        Descripción
-      </label>
-      <textarea
-        rows={4}
-        required
-        placeholder="Ej: Construcción de un galpón logístico de gran escala con estructura metálica..."
-        value={data.description}
-        onChange={(e) => setData({ ...data, description: e.target.value })}
-        className="w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 resize-none focus:ring-0"
-      />
-    </div>
+  const handleFilesSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    {/* IMAGE UPLOADER */}
-    <div className="space-y-3">
-      <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1 block">
-        Imágenes del Proyecto (URLs)
-      </label>
-      <div className="flex gap-2">
-        <input
-          type="url"
-          placeholder="https://ejemplo.com/foto-obra.jpg"
-          value={urlVal}
-          onChange={(e) => setUrlVal(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              onAddImg();
+    setUploadError(null);
+    const allFiles = Array.from(files);
+
+    // Separar archivos válidos (≤5MB) de los que exceden el límite
+    const oversizedFiles = allFiles.filter(
+      (f) => f.size > MAX_IMAGE_SIZE_BYTES,
+    );
+    const validFiles = allFiles.filter(
+      (f) => f.size <= MAX_IMAGE_SIZE_BYTES,
+    );
+
+    if (oversizedFiles.length > 0) {
+      const names = oversizedFiles.map((f) => f.name).join(", ");
+      setUploadError(
+        `${oversizedFiles.length === 1 ? "Esta foto pesa" : "Estas fotos pesan"} más de 5MB y no se ${oversizedFiles.length === 1 ? "subió" : "subieron"}: ${names}. Comprimila o elegí otra.`,
+      );
+    }
+
+    if (validFiles.length === 0) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setUploadingCount(validFiles.length);
+    setUploadProgress(0);
+
+    try {
+      const uploadedUrls: string[] = [];
+      for (let i = 0; i < validFiles.length; i++) {
+        const originalFile = validFiles[i];
+        const file = await compressImage(originalFile);
+        const url = await uploadImageToStorage(file, (pct) => {
+          // Progreso combinado: archivos ya subidos + progreso del actual
+          const overall = Math.round(
+            ((i + pct / 100) / validFiles.length) * 100,
+          );
+          setUploadProgress(overall);
+        });
+        uploadedUrls.push(url);
+      }
+      setData({ ...data, images: [...data.images, ...uploadedUrls] });
+    } catch (err) {
+      console.error(err);
+      setUploadError(
+        "No se pudo subir una o más imágenes. Probá de nuevo.",
+      );
+    } finally {
+      setUploadingCount(0);
+      setUploadProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveImg = (index: number) => {
+    setData({
+      ...data,
+      images: data.images.filter((_, i) => i !== index),
+    });
+  };
+
+  const isUploading = uploadingCount > 0;
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-6 text-left">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
+            Título de la Obra / Empresa
+          </label>
+          <input
+            type="text"
+            required
+            placeholder="Ej: Depósito de Logística del Sur"
+            value={data.title}
+            onChange={(e) => setData({ ...data, title: e.target.value })}
+            className={inputClass}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
+            Especialidad / Categoría
+          </label>
+          <select
+            value={data.category}
+            onChange={(e) =>
+              setData({ ...data, category: e.target.value as ProjectCategory })
             }
-          }}
-          className="flex-1 bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 focus:ring-0"
-        />
-        <button
-          type="button"
-          onClick={onAddImg}
-          className="px-4 py-3 bg-[#F27D26] text-black font-black text-xs uppercase tracking-widest rounded-none hover:bg-orange-500 transition-all cursor-pointer flex items-center gap-1.5"
-        >
-          <Plus className="w-4 h-4" /> Agregar
-        </button>
+            className={inputClass}
+          >
+            {categoryOptions.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      {data.images.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-neutral-50 p-4 border border-neutral-200">
-          {data.images.map((img, i) => (
-            <div key={i} className="relative group">
-              <div className="aspect-[4/3] overflow-hidden border border-neutral-200 bg-black">
-                <img
-                  src={img}
-                  alt={`Foto ${i + 1}`}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <div className="flex items-center justify-between mt-1 px-0.5">
-                <span className="text-[9px] text-neutral-400 font-bold uppercase">
-                  {i === 0 ? "Principal" : `Foto ${i + 1}`}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onRemoveImg(i)}
-                  className="text-red-400 hover:text-red-600 cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="bg-neutral-50 border border-dashed border-neutral-300 p-6 text-center">
-          <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">
-            Sin imágenes agregadas — la primera URL será la imagen principal
-          </p>
-        </div>
-      )}
-    </div>
 
-    <button
-      type="submit"
-      className="w-full py-4 bg-[#F27D26] text-black font-black text-xs uppercase tracking-widest rounded-none shadow-lg hover:bg-orange-500 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
-    >
-      <Send className="w-4 h-4" />
-      {submitLabel}
-    </button>
-  </form>
-);
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
+          Descripción
+        </label>
+        <textarea
+          rows={4}
+          required
+          placeholder="Ej: Construcción de un galpón logístico de gran escala con estructura metálica..."
+          value={data.description}
+          onChange={(e) => setData({ ...data, description: e.target.value })}
+          className="w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 resize-none focus:ring-0"
+        />
+      </div>
+
+      {/* IMAGE UPLOADER */}
+      <div className="space-y-3">
+        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1 block">
+          Imágenes del Proyecto
+        </label>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          capture="environment"
+          onChange={handleFilesSelected}
+          className="hidden"
+          id="project-image-upload"
+        />
+
+        <label
+          htmlFor="project-image-upload"
+          className={`flex items-center justify-center gap-2 w-full px-4 py-4 border border-dashed font-black text-xs uppercase tracking-widest rounded-none transition-all cursor-pointer ${
+            isUploading
+              ? "border-neutral-300 bg-neutral-100 text-neutral-400 cursor-not-allowed"
+              : "border-[#F27D26]/40 bg-[#FFF6F0] text-[#F27D26] hover:bg-[#F27D26]/10"
+          }`}
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Subiendo imágenes... {uploadProgress}%
+            </>
+          ) : (
+            <>
+              <UploadCloud className="w-4 h-4" />
+              Subir Fotos desde el Dispositivo
+            </>
+          )}
+        </label>
+
+        {uploadError && (
+          <p className="text-[11px] text-red-600 font-semibold">{uploadError}</p>
+        )}
+
+        {data.images.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-neutral-50 p-4 border border-neutral-200">
+            {data.images.map((img, i) => (
+              <div key={i} className="relative group">
+                <div className="aspect-[4/3] overflow-hidden border border-neutral-200 bg-black">
+                  <img
+                    src={img}
+                    alt={`Foto ${i + 1}`}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-1 px-0.5">
+                  <span className="text-[9px] text-neutral-400 font-bold uppercase">
+                    {i === 0 ? "Principal" : `Foto ${i + 1}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImg(i)}
+                    className="text-red-400 hover:text-red-600 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          !isUploading && (
+            <div className="bg-neutral-50 border border-dashed border-neutral-300 p-6 text-center">
+              <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">
+                Sin imágenes agregadas — la primera foto será la imagen principal
+              </p>
+            </div>
+          )
+        )}
+      </div>
+
+      <button
+        type="submit"
+        disabled={isUploading}
+        className={`w-full py-4 font-black text-xs uppercase tracking-widest rounded-none shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+          isUploading
+            ? "bg-neutral-300 text-neutral-500 cursor-not-allowed"
+            : "bg-[#F27D26] text-black hover:bg-orange-500 cursor-pointer"
+        }`}
+      >
+        <Send className="w-4 h-4" />
+        {submitLabel}
+      </button>
+    </form>
+  );
+};
 
 // — Interfaces —
 interface AdminPanelProps {
@@ -189,8 +320,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onCloseAdmin,
 }) => {
   const [activeTab, setActiveTab] = useState<"list" | "add" | "edit">("list");
-  const [urlInput, setUrlInput] = useState("");
-  const [editUrlInput, setEditUrlInput] = useState("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -209,24 +338,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setTimeout(() => setNotification(null), 2500);
   };
 
-  // — ADD handlers —
-  const handleAddImage = () => {
-    if (urlInput.trim()) {
-      setNewProject({
-        ...newProject,
-        images: [...newProject.images, urlInput.trim()],
-      });
-      setUrlInput("");
-    }
-  };
-
-  const handleRemoveImage = (index: number) => {
-    setNewProject({
-      ...newProject,
-      images: newProject.images.filter((_, i) => i !== index),
-    });
-  };
-
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
     const created: Project = {
@@ -240,7 +351,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     onAddProject(created);
     showNotification("¡Proyecto creado y sincronizado al portfolio con éxito!");
     setNewProject(emptyForm);
-    setUrlInput("");
     setTimeout(() => setActiveTab("list"), 2000);
   };
 
@@ -253,25 +363,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       description: proj.description,
       images: proj.images,
     });
-    setEditUrlInput("");
     setActiveTab("edit");
-  };
-
-  const handleAddEditImage = () => {
-    if (editUrlInput.trim()) {
-      setEditProject({
-        ...editProject,
-        images: [...editProject.images, editUrlInput.trim()],
-      });
-      setEditUrlInput("");
-    }
-  };
-
-  const handleRemoveEditImage = (index: number) => {
-    setEditProject({
-      ...editProject,
-      images: editProject.images.filter((_, i) => i !== index),
-    });
   };
 
   const handleUpdateProject = (e: React.FormEvent) => {
@@ -483,10 +575,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <ProjectForm
                 data={newProject}
                 setData={setNewProject}
-                urlVal={urlInput}
-                setUrlVal={setUrlInput}
-                onAddImg={handleAddImage}
-                onRemoveImg={handleRemoveImage}
                 onSubmit={handleCreateProject}
                 submitLabel="Publicar en Portfolio de Acercons"
               />
@@ -497,10 +585,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <ProjectForm
                 data={editProject}
                 setData={setEditProject}
-                urlVal={editUrlInput}
-                setUrlVal={setEditUrlInput}
-                onAddImg={handleAddEditImage}
-                onRemoveImg={handleRemoveEditImage}
                 onSubmit={handleUpdateProject}
                 submitLabel="Guardar Cambios"
               />

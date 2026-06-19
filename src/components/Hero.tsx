@@ -17,8 +17,8 @@ const PHRASES = [
 
 const heroImages = [
   "/images/galponHero.png",
-  "/images/balcon3.png",
-  "/images/galpon.png",
+  "/images/techo.png",
+  "/images/estructuraGalpon.png",
 ];
 
 export const Hero: React.FC<HeroProps> = ({
