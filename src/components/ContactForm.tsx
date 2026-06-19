@@ -9,6 +9,14 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
+// Números de contacto: mientras no haya un número técnico distinto,
+// ambos apuntan al mismo. Cuando lo consigan, solo hace falta
+// reemplazar PHONE_TECHNICAL / PHONE_TECHNICAL_WHATSAPP acá abajo.
+const PHONE_COMMERCIAL = "+54 9 351 385-3120";
+const PHONE_COMMERCIAL_WHATSAPP = "543513853120";
+const PHONE_TECHNICAL = "+54 9 351 385-3120";
+const PHONE_TECHNICAL_WHATSAPP = "543513853120";
+
 export const ContactForm: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
@@ -36,7 +44,7 @@ export const ContactForm: React.FC = () => {
 ─────────────────────────
     `.trim();
 
-    const url = `https://wa.me/543513853120?text=${encodeURIComponent(
+    const url = `https://wa.me/${PHONE_COMMERCIAL_WHATSAPP}?text=${encodeURIComponent(
       mensaje
     )}`;
 
@@ -101,19 +109,62 @@ export const ContactForm: React.FC = () => {
                   </div>
                 </div>
 
-                {/* PHONE */}
+                {/* PHONE - COMERCIAL */}
                 <div className="flex gap-4 p-4 bg-white/5 border border-white/5">
                   <div className="p-3 bg-black/40 border border-white/10 text-[#F27D26] h-fit">
                     <Phone className="w-5 h-5" />
                   </div>
 
-                  <div>
-                    <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">
-                      Teléfono de Contacto
-                    </h4>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">
+                        Contacto Comercial
+                      </h4>
+                      <a
+                        href={`https://wa.me/${PHONE_COMMERCIAL_WHATSAPP}?text=Hola,%20quisiera%20realizar%20una%20consulta%20comercial`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-400 transition-colors"
+                      >
+                        <FaWhatsapp className="w-3 h-3" />
+                        Ir a WhatsApp
+                      </a>
+                    </div>
 
                     <p className="text-xs sm:text-sm text-white/80 mt-1">
-                      +54 9 351 385-3120
+                      {PHONE_COMMERCIAL}
+                    </p>
+
+                    <p className="text-[10px] text-white/50 mt-1">
+                      Lunes a Viernes de 8:00 hs a 18:00 hs
+                    </p>
+                  </div>
+                </div>
+
+                {/* PHONE - TÉCNICO */}
+                <div className="flex gap-4 p-4 bg-white/5 border border-white/5">
+                  <div className="p-3 bg-black/40 border border-white/10 text-[#F27D26] h-fit">
+                    <Phone className="w-5 h-5" />
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">
+                        Contacto Técnico
+                      </h4>
+                      <a
+                        href={`https://wa.me/${PHONE_TECHNICAL_WHATSAPP}?text=Hola,%20quisiera%20realizar%20una%20consulta%20t%C3%A9cnica`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-400 transition-colors"
+                      >
+                        <FaWhatsapp className="w-3 h-3" />
+                        Ir a WhatsApp
+                      </a>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-white/80 mt-1">
+                      {PHONE_TECHNICAL}
                     </p>
 
                     <p className="text-[10px] text-white/50 mt-1">
@@ -142,34 +193,33 @@ export const ContactForm: React.FC = () => {
             </div>
 
             {/* MAP */}
-{/* MAP */}
-<div className="space-y-4">
-  <div className="flex items-center gap-2">
-    <Info className="w-4 h-4 text-[#F27D26]" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#F27D26]" />
 
-    <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40">
-      UBICACIÓN
-    </h4>
-  </div>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  UBICACIÓN
+                </h4>
+              </div>
 
-  <div className="relative aspect-[16/10] border border-white/10 overflow-hidden">
-    <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d425.4154480414981!2d-64.14208072441535!3d-31.460283745036552!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9432bd006005b2e3%3A0x18ae33a0e3c0133d!2sACERCONS%20Estructuras%20Metalicas!5e0!3m2!1ses!2sar!4v1781764338365!5m2!1ses!2sar"
-      className="w-full h-full"
-      style={{ border: 0 }}
-      loading="lazy"
-      allowFullScreen
-      referrerPolicy="no-referrer-when-downgrade"
-      title="Ubicación Acercons"
-    />
-  </div>
+              <div className="relative aspect-[16/10] border border-white/10 overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d425.4154480414981!2d-64.14208072441535!3d-31.460283745036552!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9432bd006005b2e3%3A0x18ae33a0e3c0133d!2sACERCONS%20Estructuras%20Metalicas!5e0!3m2!1ses!2sar!4v1781764338365!5m2!1ses!2sar"
+                  className="w-full h-full"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Ubicación Acercons"
+                />
+              </div>
 
-</div>
+            </div>
 
             {/* WHATSAPP BUTTON */}
             <div>
               <a
-                href="https://wa.me/543513853120?text=Hola,%20quisiera%20realizar%20una%20consulta"
+                href={`https://wa.me/${PHONE_COMMERCIAL_WHATSAPP}?text=Hola,%20quisiera%20realizar%20una%20consulta`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm uppercase tracking-wider shadow-md transition-all"

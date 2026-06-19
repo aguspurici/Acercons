@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Project, ProjectCategory } from "../types";
 import { ChevronLeft, ChevronRight, FolderOpen, ArrowLeft } from "lucide-react";
+import { Pagination } from "./pagination";
 
 interface ProjectsSectionProps {
   projects: Project[];
@@ -18,6 +19,15 @@ interface CategoryFolder {
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const images = project.images && project.images.length > 0 ? project.images : [project.image];
+
+  // Precarga en segundo plano todas las fotos del proyecto (salvo la que
+  // ya se está mostrando) para que el carrusel cambie de foto al instante.
+  useEffect(() => {
+    images.forEach((src) => {
+      const preloadImg = new Image();
+      preloadImg.src = src;
+    });
+  }, [images]);
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,6 +87,8 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
 
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) => {
   const [openFolder, setOpenFolder] = useState<ProjectCategory | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PROJECTS_PER_PAGE = 4;
 
   // Agrupa los proyectos por categoría. Solo se incluyen categorías
   // que ya tengan al menos un proyecto cargado.
@@ -99,6 +111,27 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
 
   const activeFolder = folders.find((f) => f.category === openFolder) || null;
 
+  // Resetea siempre a la página 1 cuando se abre una carpeta distinta
+  const handleOpenFolder = (category: ProjectCategory) => {
+    setOpenFolder(category);
+    setCurrentPage(1);
+  };
+
+  const handleCloseFolder = () => {
+    setOpenFolder(null);
+    setCurrentPage(1);
+  };
+
+  const totalPages = activeFolder
+    ? Math.ceil(activeFolder.projects.length / PROJECTS_PER_PAGE)
+    : 1;
+
+  const paginatedProjects = useMemo(() => {
+    if (!activeFolder) return [];
+    const start = (currentPage - 1) * PROJECTS_PER_PAGE;
+    return activeFolder.projects.slice(start, start + PROJECTS_PER_PAGE);
+  }, [activeFolder, currentPage]);
+
   return (
     <section id="projects" className="py-24 bg-[#0A0A0A] border-t border-white/10 relative overflow-hidden">
       {/* Editorial backdrop grid lines */}
@@ -118,7 +151,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
             <span className="w-8 h-[1px] bg-[#F27D26]"></span> Portfolio de Obra
           </span>
           <h2 className="text-3xl sm:text-5xl font-black uppercase leading-tight tracking-tighter text-white">
-            Nuestros trabajos realizados con <span className="text-[#F27D26]">ingeniería pesada</span>
+            Nuestros proyectos 
+            <span className="text-[#F27D26]"> más destacados</span>
           </h2>
           <p className="text-sm sm:text-base text-white/60 leading-relaxed">
             Explora las obras más ambiciosas construidas por Acercons en materia de galpones logísticos, naves industriales de proceso y montajes de alta resistencia mecánica en todo el territorio nacional.
@@ -137,7 +171,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                 {folders.map((folder) => (
                   <button
                     key={folder.category}
-                    onClick={() => setOpenFolder(folder.category)}
+                    onClick={() => handleOpenFolder(folder.category)}
                     className="group text-left bg-[#0A0A0A] border border-white/10 rounded-none overflow-hidden hover:border-[#F27D26]/40 transition-all duration-300 cursor-pointer"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden bg-black">
@@ -147,7 +181,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                         className="w-full h-full object-cover scale-100 group-hover:scale-[1.04] transition-all duration-[2000ms]"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 " />
 
                       <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/85 border border-white/15 px-3 py-1.5">
                         <FolderOpen className="w-3.5 h-3.5 text-[#F27D26]" />
@@ -157,7 +191,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                       </div>
 
                       <div className="absolute bottom-0 inset-x-0 p-5">
-                        <h3 className="text-lg sm:text-xl font-black uppercase text-white tracking-tight group-hover:text-[#F27D26] transition-colors">
+                        <h3 className="text-lg sm:text-xl font-black uppercase !text-white tracking-tight group-hover:text-[#F27D26] transition-colors">
                           {folder.category}
                         </h3>
                       </div>
@@ -175,7 +209,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
             <div className="flex items-center justify-between border-b border-white/10 pb-6 text-left">
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => setOpenFolder(null)}
+                  onClick={handleCloseFolder}
                   className="p-2.5 bg-black hover:bg-white/5 border border-white/10 text-white/60 hover:text-[#F27D26] transition-colors cursor-pointer"
                   title="Volver a categorías"
                 >
@@ -195,10 +229,18 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
               </span>
             </div>
 
-            <div className="max-w-3xl mx-auto space-y-10">
-              {activeFolder.projects.map((project) => (
+            <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {paginatedProjects.map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
+            </div>
+
+            <div className="max-w-5xl mx-auto">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         )}
