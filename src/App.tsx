@@ -6,7 +6,6 @@ import { AboutUs } from "./components/AboutUs";
 import { ServicesList } from "./components/ServicesList";
 import { ProjectsSection } from "./components/ProjectsSection";
 import { HowWeWork } from "./components/HowWeWork";
-import { GalleryGrid } from "./components/GalleryGrid";
 import { ContactForm } from "./components/ContactForm";
 import { Footer } from "./components/Footer";
 import { AdminPanel } from "./components/AdminPanel";
@@ -67,7 +66,6 @@ function LandingPage() {
         <ServicesList />
         <ProjectsSection projects={projects} />
         <HowWeWork />
-        <GalleryGrid projects={projects} />
         <ContactForm />
         <Footer onNavigate={handleNavigate} />
         <WhatsappFloating />
@@ -79,36 +77,28 @@ function LandingPage() {
 function AdminPage() {
   const { projects, addProject, deleteProject, updateProject } = useProjects();
 
- const handleAddProject = async (proj: Project) => {
-  const { id, ...rest } = proj;
-  
-  // Quitar featured de todos los proyectos existentes
-  const updates = projects.map((p) =>
-    updateProject(p.id, { featured: false })
-  );
-  await Promise.all(updates);
+  const handleAddProject = async (proj: Project) => {
+    const { id, ...rest } = proj;
+    await addProject(rest);
+  };
 
-  // Agregar el nuevo como featured
-  await addProject({ ...rest, featured: true });
-};
-  
   const handleDeleteProject = async (id: string) => {
-  await deleteProject(id);
-};
+    await deleteProject(id);
+  };
 
- const handleUpdateProject = async (id: string, data: Partial<Project>) => {
-  await updateProject(id, data);
-};
+  const handleUpdateProject = async (id: string, data: Partial<Project>) => {
+    await updateProject(id, data);
+  };
 
-return (
-  <AdminPanel
-    projects={projects}
-    onAddProject={handleAddProject}
-    onDeleteProject={handleDeleteProject}
-    onUpdateProject={handleUpdateProject}
-    onCloseAdmin={() => {}}
-  />
-);
+  return (
+    <AdminPanel
+      projects={projects}
+      onAddProject={handleAddProject}
+      onDeleteProject={handleDeleteProject}
+      onUpdateProject={handleUpdateProject}
+      onCloseAdmin={() => {}}
+    />
+  );
 }
 
 export default function App() {
