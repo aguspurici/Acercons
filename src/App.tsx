@@ -14,6 +14,7 @@ import { LoginPage } from "./components/LoginPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useProjects } from "./hooks/useProjects";
 import { Project } from "./types";
+import { GallerySection } from "./components/Gallerysection";
 
 function LandingPage() {
   const { projects, loading } = useProjects();
@@ -66,8 +67,9 @@ function LandingPage() {
         <ServicesList />
         <ProjectsSection projects={projects} />
         <HowWeWork />
+        <GallerySection projects={projects} />
         <ContactForm />
-        <Footer onNavigate={handleNavigate} />
+        <Footer isDarkMode={isDarkMode} onNavigate={handleNavigate} />
         <WhatsappFloating />
       </div>
     </div>

@@ -5,9 +5,10 @@ import { FaWhatsapp } from "react-icons/fa";
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
+  isDarkMode: boolean;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigate, isDarkMode }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -93,17 +94,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Footer inferior */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
           <div>
-            © {currentYear} Acercons Estructuras Metálicas &mdash Todos los derechos reservados
+            © {currentYear} Acercons Estructuras Metálicas. Todos los derechos reservados
           </div>
           <a
             href="https://elementalwebs.com"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-white/60 group-hover:text-white transition-colors"
           >
             <span>Creado por</span>
             <img
-              src="/images/LogoElemental.png"
+              src={isDarkMode ? "/images/LogoElemental.png" : "/images/LogoElementalNegro.png"}
               alt="Elemental Webs"
               className="h-5 object-contain"
             />

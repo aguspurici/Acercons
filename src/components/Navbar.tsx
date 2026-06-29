@@ -128,19 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {isDarkMode ? <Sun className="w-4 h-4 text-[#F27D26]" /> : <Moon className="w-4 h-4 text-[#F27D26]" />}
             </button>
 
-            <button
-              onClick={() => setIsAdminView(!isAdminView)}
-              className={`p-2 rounded-none border ${
-                isAdminView
-                  ? "bg-[#F27D26]/10 text-[#F27D26] border-[#F27D26]/30"
-                  : isDarkMode
-                    ? "bg-[#0A0A0A] text-white/60 border-white/10"
-                    : "bg-white text-neutral-800 border-neutral-200"
-              }`}
-              title="Admin Terminal"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-            </button>
+           
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -174,23 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             ))}
             <div className={`pt-4 pb-2 border-t px-4 space-y-2 ${isDarkMode ? "border-white/10" : "border-neutral-200"}`}>
-              <button
-                onClick={() => {
-                  setIsAdminView(!isAdminView);
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex items-center justify-center gap-2 w-full px-4 py-3 text-xs font-black uppercase tracking-widest border transition-all rounded-none ${
-                  isAdminView
-                    ? "bg-[#F27D26] text-black border-[#F27D26]"
-                    : isDarkMode
-                      ? "bg-transparent text-white/80 border-white/20"
-                      : "bg-transparent text-neutral-800 border-neutral-300"
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                {isAdminView ? "Ver Sitio de Acercons" : "Admin Terminal"}
-              </button>
-
+              
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
