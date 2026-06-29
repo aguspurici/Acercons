@@ -14,8 +14,8 @@ import { FaWhatsapp } from "react-icons/fa";
 // reemplazar PHONE_TECHNICAL / PHONE_TECHNICAL_WHATSAPP acá abajo.
 const PHONE_COMMERCIAL = "+54 9 351 385-3120";
 const PHONE_COMMERCIAL_WHATSAPP = "543513853120";
-const PHONE_TECHNICAL = "+54 9 351 385-3120";
-const PHONE_TECHNICAL_WHATSAPP = "543513853120";
+const PHONE_TECHNICAL = "+54 9 351 4032885";
+const PHONE_TECHNICAL_WHATSAPP = "543514032885";
 
 export const ContactForm: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -135,8 +135,8 @@ export const ContactForm: React.FC = () => {
                       {PHONE_COMMERCIAL}
                     </p>
 
-                    <p className="text-[10px] text-white/50 mt-1">
-                      Lunes a Viernes de 8:00 hs a 18:00 hs
+                    <p className="text-[14px] text-white/80 mt-1">
+                      comercial.acercons@gmail.com
                     </p>
                   </div>
                 </div>
@@ -152,7 +152,7 @@ export const ContactForm: React.FC = () => {
                       <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">
                         Contacto Técnico
                       </h4>
-                      <a
+                      {/* <a
                         href={`https://wa.me/${PHONE_TECHNICAL_WHATSAPP}?text=Hola,%20quisiera%20realizar%20una%20consulta%20t%C3%A9cnica`}
                         target="_blank"
                         rel="noreferrer"
@@ -160,21 +160,21 @@ export const ContactForm: React.FC = () => {
                       >
                         <FaWhatsapp className="w-3 h-3" />
                         Ir a WhatsApp
-                      </a>
+                      </a> */}
                     </div>
 
                     <p className="text-xs sm:text-sm text-white/80 mt-1">
                       {PHONE_TECHNICAL}
                     </p>
 
-                    <p className="text-[10px] text-white/50 mt-1">
-                      Lunes a Viernes de 8:00 hs a 18:00 hs
+                    <p className="text-[14px] text-white/80 mt-1">
+                      tecnica.acercons@gmail.com
                     </p>
                   </div>
                 </div>
 
                 {/* EMAIL */}
-                <div className="flex gap-4 p-4 bg-white/5 border border-white/5">
+                {/* <div className="flex gap-4 p-4 bg-white/5 border border-white/5">
                   <div className="p-3 bg-black/40 border border-white/10 text-[#F27D26] h-fit">
                     <Mail className="w-5 h-5" />
                   </div>
@@ -188,7 +188,7 @@ export const ContactForm: React.FC = () => {
                       comercial.acercons@gmail.com
                     </p>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 

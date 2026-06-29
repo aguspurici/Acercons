@@ -68,7 +68,7 @@ export const AboutUs: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <h4 className="text-xs font-bold uppercase tracking-widest text-[#F27D26]">
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-white">
                         {item.title}
                       </h4>
                       <p className="text-xs text-white/60 leading-relaxed">

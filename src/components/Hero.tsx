@@ -36,18 +36,16 @@ export const Hero: React.FC<HeroProps> = ({
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [currentImage, setCurrentImage] = useState(0);
 
+const heroImages = [
+  "/images/balcon3.png",
+  "/images/estructura.png",
+  "/images/frente.webp",
+];
   useEffect(() => {
     const phraseTimer = setInterval(() => {
       setCurrentPhrase((prev) => (prev + 1) % PHRASES.length);
     }, 3500);
     return () => clearInterval(phraseTimer);
-  }, []);
-
-  useEffect(() => {
-    const imageTimer = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-    }, 4000);
-    return () => clearInterval(imageTimer);
   }, []);
 
   return (
