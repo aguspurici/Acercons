@@ -21,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, isDarkMode }) => {
           <div className="md:col-span-4 space-y-5">
             <Logo size="lg" withPlate={false} />
             <p className="text-sm text-white/50 leading-relaxed max-w-sm">
-              Fabricación y montaje de estructuras metálicas en Córdoba. Galpones, portones y obras industriales a medida.
+              Fabricación y montaje de estructuras metálicas en Córdoba. Naves Industriales, estructuras metálicas a medida y obras civiles.
             </p>
             <div className="flex gap-2 flex-wrap">
               <span className="text-[10px] uppercase font-bold text-[#F27D26] bg-[#F27D26]/10 px-2 py-1 border border-[#F27D26]/20">
