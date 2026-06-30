@@ -67,7 +67,7 @@ function LandingPage() {
         <ServicesList />
         <ProjectsSection projects={projects} />
         <HowWeWork />
-        <GallerySection projects={projects} />
+        <GallerySection projects={projects} isDarkMode={isDarkMode} />
         <ContactForm />
         <Footer isDarkMode={isDarkMode} onNavigate={handleNavigate} />
         <WhatsappFloating />

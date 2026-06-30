@@ -5,22 +5,22 @@ export const AboutUs: React.FC = () => {
   const highlights = [
     {
       title: "Fabricación propia",
-      desc: "Producimos las estructuras en nuestro taller y las montamos en obra. Sin tercerizar.",
+      desc: "Luego de aprobada la ingeniería, producimos y procesamos cada pieza hasta lograr el desarrollo total de la estructura.",
       icon: Wrench,
     },
     {
-      title: "Materiales de calidad",
-      desc: "Trabajamos con aceros y perfiles de proveedores conocidos, seleccionados por duración y rendimiento.",
+      title: "Materia Prima",
+      desc: "Contamos con proveedores de alta respuesta en entregas y diversidad de materiales en plaza.",
       icon: Package,
     },
     {
       title: "Equipo con experiencia",
-      desc: "Personal propio con años en el rubro, acostumbrado a obras de distintas escalas y condiciones.",
+      desc: "Contamos con capacidad, equipo y personal calificado en las diferentes áreas, comercial, técnica, administrativa, productiva y logística, para dar soluciones concretas a nuestros clientes.",
       icon: HardHat,
     },
     {
       title: "Cumplimiento de plazos",
-      desc: "Organizamos cada etapa del trabajo para entregar en tiempo y sin sorpresas de último momento.",
+      desc: "Enfatizamos en el cumplimiento de plazos acordados, desarrollando programación efectiva de etapas, aportando visibilidad, control de riesgos y claridad de metas.",
       icon: Clock,
     },
   ];
@@ -50,11 +50,7 @@ export const AboutUs: React.FC = () => {
             </div>
 
             <p className="text-base sm:text-lg text-white/70 leading-relaxed font-normal">
-              Somos <strong className="text-white font-semibold">Acercons</strong>, una empresa metalúrgica cordobesa dedicada a la fabricación y montaje de estructuras metálicas. Hacemos galpones industriales, portones, naves y todo tipo de construcción en acero para clientes de la región.
-            </p>
-
-            <p className="text-sm text-white/50 leading-relaxed">
-              Llevamos más de 15 años en el rubro. En ese tiempo aprendimos que cada obra tiene sus particularidades, y que la mejor forma de trabajar es de cerca con el cliente, desde la primera medición hasta el día de la entrega.
+             En <strong className="text-white font-semibold">Acercons</strong>, transformamos el metal en soluciones sólidas, duraderas y de alta precisión. Con más de 15 años de trayectoria en el sector metalúrgico, nos especializamos en <strong className="text-white font-semibold">NAVES INDUSTRIALES, ESTRUCTURAS ESPECIALES, REDES DE FLUIDOS, SOLUCIONES CONSTRUCTIVAS, DESARROLLOS ESPECIALES</strong>, para particulares, empresas e industrias.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
@@ -71,7 +67,7 @@ export const AboutUs: React.FC = () => {
                       <h4 className="text-xs font-bold uppercase tracking-widest text-white">
                         {item.title}
                       </h4>
-                      <p className="text-xs text-white/60 leading-relaxed">
+                      <p className="text-sm text-white/70 leading-relaxed">
                         {item.desc}
                       </p>
                     </div>
@@ -100,7 +96,7 @@ export const AboutUs: React.FC = () => {
                 <div className="text-[10px] font-bold text-white uppercase tracking-widest">
                   Años en el rubro
                 </div>
-                <p className="text-[10px] text-white/50 mt-0.5 leading-tight">
+                <p className="text-[12px] text-white/70 mt-0.5 leading-tight">
                   Fabricación y montaje de estructuras metálicas en Córdoba.
                 </p>
               </div>

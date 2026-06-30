@@ -36,11 +36,11 @@ export const Hero: React.FC<HeroProps> = ({
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [currentImage, setCurrentImage] = useState(0);
 
-const heroImages = [
-  "/images/balcon3.png",
-  "/images/estructura.png",
-  "/images/frente.webp",
-];
+  const heroImages = [
+    "/images/balcon3.png",
+    "/images/estructura.png",
+    "/images/frente.webp",
+  ];
   useEffect(() => {
     const phraseTimer = setInterval(() => {
       setCurrentPhrase((prev) => (prev + 1) % PHRASES.length);
@@ -131,13 +131,6 @@ const heroImages = [
             Estructuras <br />
             <span className="text-[#F27D26]">Metálicas</span>
             <br />
-            <span
-              className={`text-2xl md:text-3xl mt-3 block font-semibold lowercase tracking-tight normal-case transition-colors duration-500 ${
-                isDarkMode ? "text-white/60" : "text-neutral-500"
-              }`}
-            >
-              Galpones y Construcción Industrial.
-            </span>
           </motion.h1>
 
           <motion.p
@@ -145,12 +138,11 @@ const heroImages = [
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className={`text-sm md:text-base leading-relaxed mb-8 transition-colors duration-500 ${
-              isDarkMode ? "text-white/50" : "text-neutral-600"
+              isDarkMode ? "text-white/70" : "text-neutral-600"
             }`}
           >
-            Fabricamos y montamos estructuras metálicas en Córdoba y la
-            región. Trabajamos con cada cliente desde el diseño hasta la
-            entrega, sin intermediarios.
+            Desarrollamos, fabricamos y montamos estructuras metálicas que
+            aportan valor agregado a tu proyecto.
           </motion.p>
 
           <div className="h-8 mb-12 overflow-hidden">

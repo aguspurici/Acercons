@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  CheckCircle,
-  Info,
-} from "lucide-react";
+import { Mail, Phone, MapPin, Send, CheckCircle, Info } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
 // Números de contacto: mientras no haya un número técnico distinto,
@@ -29,10 +22,14 @@ export const ContactForm: React.FC = () => {
     message: "",
   });
 
+  const [activeForm, setActiveForm] = useState<"whatsapp" | "email">(
+    "whatsapp",
+  );
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const mensaje = `
+    if (activeForm === "whatsapp") {
+      const mensaje = `
 *Nueva Consulta - Acercons*
 ─────────────────────────
 👤 *Nombre:* ${formData.name}
@@ -43,16 +40,26 @@ export const ContactForm: React.FC = () => {
 📋 *Detalles:* ${formData.message}
 ─────────────────────────
     `.trim();
+      const url = `https://wa.me/${PHONE_COMMERCIAL_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, "_blank");
+    } else {
+      const subject = `Consulta de ${formData.name} - ${formData.projectType}`;
+      const body = `
+Nombre: ${formData.name}
+Email: ${formData.email}
+Teléfono: ${formData.phone}
+Servicio: ${formData.projectType}
+Superficie: ${formData.area || "No especificada"}
 
-    const url = `https://wa.me/${PHONE_COMMERCIAL_WHATSAPP}?text=${encodeURIComponent(
-      mensaje
-    )}`;
-
-    window.open(url, "_blank");
+Detalles:
+${formData.message}
+    `.trim();
+      const mailtoUrl = `mailto:tecnica.acercons@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailtoUrl, "_blank");
+    }
 
     setFormSubmitted(true);
   };
-
   return (
     <section
       id="contact"
@@ -61,7 +68,6 @@ export const ContactForm: React.FC = () => {
       <div className="absolute bottom-[-15%] left-[-10%] w-[40%] h-[40%] bg-[#F27D26]/5 blur-[120px] pointer-events-none" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
         {/* HEADER */}
         <div className="space-y-4 max-w-2xl text-left mb-16">
           <span className="text-[#F27D26] text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
@@ -70,8 +76,7 @@ export const ContactForm: React.FC = () => {
           </span>
 
           <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tighter text-white">
-            Hablemos sobre su{" "}
-            <span className="text-[#F27D26]">proyecto</span>
+            Hablemos sobre su <span className="text-[#F27D26]">proyecto</span>
           </h2>
 
           <p className="text-sm text-white/60 leading-relaxed">
@@ -81,17 +86,14 @@ export const ContactForm: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
           {/* LEFT SIDE */}
           <div className="lg:col-span-5 space-y-8 text-left">
-            
             <div className="space-y-6">
               <h3 className="text-sm font-black uppercase tracking-widest text-[#F27D26]">
                 Oficina y Contacto
               </h3>
 
               <div className="space-y-4">
-                
                 {/* ADDRESS */}
                 <div className="flex gap-4 p-4 bg-white/5 border border-white/5">
                   <div className="p-3 bg-black/40 border border-white/10 text-[#F27D26] h-fit">
@@ -213,7 +215,6 @@ export const ContactForm: React.FC = () => {
                   title="Ubicación Acercons"
                 />
               </div>
-
             </div>
 
             {/* WHATSAPP BUTTON */}
@@ -232,22 +233,37 @@ export const ContactForm: React.FC = () => {
 
           {/* RIGHT SIDE */}
           <div className="lg:col-span-7 bg-[#0A0A0A] border border-white/10 p-6 sm:p-8 lg:p-10 relative overflow-hidden text-left shadow-2xl">
-            
             <div className="absolute top-0 inset-x-0 h-1 bg-[#F27D26]" />
-
             {!formSubmitted ? (
               <form onSubmit={handleSubmit} className="space-y-6">
-                
-                <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-                  <span className="w-2 h-2 bg-[#F27D26]" />
-
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">
-                    Solicitud de Contacto
-                  </h3>
+                {/* TABS */}
+                <div className="flex border-b border-white/10 pb-4 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setActiveForm("whatsapp")}
+                    className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest pb-2 border-b-2 transition-all cursor-pointer ${
+                      activeForm === "whatsapp"
+                        ? "border-[#F27D26] text-[#F27D26]"
+                        : "border-transparent text-white/40 hover:text-white"
+                    }`}
+                  >
+                    <FaWhatsapp className="w-4 h-4" />
+                    Comercial
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveForm("email")}
+                    className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest pb-2 border-b-2 transition-all cursor-pointer ${
+                      activeForm === "email"
+                        ? "border-[#F27D26] text-[#F27D26]"
+                        : "border-transparent text-white/40 hover:text-white"
+                    }`}
+                  >
+                    <Mail className="w-4 h-4" />
+                    Técnico
+                  </button>
                 </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  
                   {/* NAME */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">
@@ -327,29 +343,13 @@ export const ContactForm: React.FC = () => {
                       }
                       className="w-full bg-[#0A0A0A] border border-white/10 text-white px-4 py-3 text-xs focus:border-[#F27D26] focus:outline-none"
                     >
-                      <option value="estructuras">
-                        Estructuras Metálicas
-                      </option>
+                      <option value="Naves Industriales">Naves Industriales</option>
 
-                      <option value="galpones">
-                        Construcción de Galpones
-                      </option>
+                      <option value="Estructuras Metalicas Especiales">Estructuras Metalicas Especiales</option>
 
-                      <option value="techos">
-                        Techos Industriales
-                      </option>
+                      <option value="Estructuras Metalicas Especiales">Estructuras Metalicas Especiales</option>
 
-                      <option value="montajes">
-                        Montajes Metálicos
-                      </option>
-
-                      <option value="soldadura">
-                        Soldadura Industrial
-                      </option>
-
-                      <option value="obras">
-                        Obras Metálicas
-                      </option>
+                      <option value="Obras Civiles">Obras Civiles</option>
                     </select>
                   </div>
                 </div>
@@ -400,13 +400,19 @@ export const ContactForm: React.FC = () => {
                   type="submit"
                   className="w-full py-4 bg-[#F27D26] text-black font-black text-xs uppercase tracking-widest hover:bg-orange-500 transition-all cursor-pointer flex items-center justify-center gap-3"
                 >
-                  <Send className="w-4 h-4" />
-                  Enviar Consulta
+                  {activeForm === "whatsapp" ? (
+                    <>
+                      <FaWhatsapp className="w-4 h-4" /> Consulta Comercial
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4" /> Consulta Técnica
+                    </>
+                  )}
                 </button>
               </form>
             ) : (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-6">
-                
                 <div className="p-4 bg-[#F27D26]/10 border border-[#F27D26]/30 text-[#F27D26]">
                   <CheckCircle className="w-12 h-12" />
                 </div>

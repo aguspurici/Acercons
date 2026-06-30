@@ -1,14 +1,11 @@
 import React, { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Project, PROJECT_CATEGORIES, ProjectCategory } from "../types";
+import { Project } from "../types";
+import { useCategories } from "../hooks/useCategories";
 import { storage } from "../lib/firebase";
 import { compressImage } from "../lib/Imagecompression";
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import {
   FileSpreadsheet,
   PlusCircle,
@@ -22,25 +19,22 @@ import {
   Pencil,
   UploadCloud,
   Loader2,
+  Tag,
+  Plus,
 } from "lucide-react";
 
-// — Constantes fuera del componente —
 const inputClass =
   "w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 focus:ring-0";
 
-const categoryOptions = PROJECT_CATEGORIES;
-
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB por foto
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
 type ProjectFormData = {
   title: string;
-  category: ProjectCategory;
+  category: string;
   description: string;
   images: string[];
 };
 
-// Sube un archivo a Firebase Storage dentro de la carpeta "projects/"
-// y devuelve la URL pública de descarga. onProgress reporta el % (0-100).
 const uploadImageToStorage = (
   file: File,
   onProgress: (pct: number) => void,
@@ -49,7 +43,6 @@ const uploadImageToStorage = (
     const uniqueName = `${Date.now()}-${Math.floor(Math.random() * 10000)}-${file.name}`;
     const storageRef = ref(storage, `projects/${uniqueName}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -71,17 +64,18 @@ const uploadImageToStorage = (
   });
 };
 
-// — ProjectForm fuera del componente —
 const ProjectForm = ({
   data,
   setData,
   onSubmit,
   submitLabel,
+  categoryOptions,
 }: {
   data: ProjectFormData;
   setData: (d: ProjectFormData) => void;
   onSubmit: (e: React.FormEvent) => void;
   submitLabel: string;
+  categoryOptions: string[];
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingCount, setUploadingCount] = useState(0);
@@ -93,40 +87,29 @@ const ProjectForm = ({
   ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setUploadError(null);
     const allFiles = Array.from(files);
-
-    // Separar archivos válidos (≤5MB) de los que exceden el límite
     const oversizedFiles = allFiles.filter(
       (f) => f.size > MAX_IMAGE_SIZE_BYTES,
     );
-    const validFiles = allFiles.filter(
-      (f) => f.size <= MAX_IMAGE_SIZE_BYTES,
-    );
-
+    const validFiles = allFiles.filter((f) => f.size <= MAX_IMAGE_SIZE_BYTES);
     if (oversizedFiles.length > 0) {
       const names = oversizedFiles.map((f) => f.name).join(", ");
       setUploadError(
-        `${oversizedFiles.length === 1 ? "Esta foto pesa" : "Estas fotos pesan"} más de 5MB y no se ${oversizedFiles.length === 1 ? "subió" : "subieron"}: ${names}. Comprimila o elegí otra.`,
+        `${oversizedFiles.length === 1 ? "Esta foto pesa" : "Estas fotos pesan"} más de 5MB y no se ${oversizedFiles.length === 1 ? "subió" : "subieron"}: ${names}.`,
       );
     }
-
     if (validFiles.length === 0) {
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
-
     setUploadingCount(validFiles.length);
     setUploadProgress(0);
-
     try {
       const uploadedUrls: string[] = [];
       for (let i = 0; i < validFiles.length; i++) {
-        const originalFile = validFiles[i];
-        const file = await compressImage(originalFile);
+        const file = await compressImage(validFiles[i]);
         const url = await uploadImageToStorage(file, (pct) => {
-          // Progreso combinado: archivos ya subidos + progreso del actual
           const overall = Math.round(
             ((i + pct / 100) / validFiles.length) * 100,
           );
@@ -137,9 +120,7 @@ const ProjectForm = ({
       setData({ ...data, images: [...data.images, ...uploadedUrls] });
     } catch (err) {
       console.error(err);
-      setUploadError(
-        "No se pudo subir una o más imágenes. Probá de nuevo.",
-      );
+      setUploadError("No se pudo subir una o más imágenes. Probá de nuevo.");
     } finally {
       setUploadingCount(0);
       setUploadProgress(0);
@@ -148,10 +129,7 @@ const ProjectForm = ({
   };
 
   const handleRemoveImg = (index: number) => {
-    setData({
-      ...data,
-      images: data.images.filter((_, i) => i !== index),
-    });
+    setData({ ...data, images: data.images.filter((_, i) => i !== index) });
   };
 
   const isUploading = uploadingCount > 0;
@@ -174,15 +152,17 @@ const ProjectForm = ({
         </div>
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1">
-            Especialidad / Categoría
+            Categoría
           </label>
           <select
             value={data.category}
-            onChange={(e) =>
-              setData({ ...data, category: e.target.value as ProjectCategory })
-            }
+            onChange={(e) => setData({ ...data, category: e.target.value })}
             className={inputClass}
+            required
           >
+            <option value="" disabled>
+              Seleccioná una categoría
+            </option>
             {categoryOptions.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -199,30 +179,26 @@ const ProjectForm = ({
         <textarea
           rows={4}
           required
-          placeholder="Ej: Construcción de un galpón logístico de gran escala con estructura metálica..."
+          placeholder="Ej: Construcción de un galpón logístico..."
           value={data.description}
           onChange={(e) => setData({ ...data, description: e.target.value })}
           className="w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 resize-none focus:ring-0"
         />
       </div>
 
-      {/* IMAGE UPLOADER */}
       <div className="space-y-3">
         <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1 block">
           Imágenes del Proyecto
         </label>
-
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
           multiple
-          capture="environment"
           onChange={handleFilesSelected}
           className="hidden"
           id="project-image-upload"
         />
-
         <label
           htmlFor="project-image-upload"
           className={`flex items-center justify-center gap-2 w-full px-4 py-4 border border-dashed font-black text-xs uppercase tracking-widest rounded-none transition-all cursor-pointer ${
@@ -234,7 +210,7 @@ const ProjectForm = ({
           {isUploading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Subiendo imágenes... {uploadProgress}%
+              Subiendo... {uploadProgress}%
             </>
           ) : (
             <>
@@ -243,11 +219,11 @@ const ProjectForm = ({
             </>
           )}
         </label>
-
         {uploadError && (
-          <p className="text-[11px] text-red-600 font-semibold">{uploadError}</p>
+          <p className="text-[11px] text-red-600 font-semibold">
+            {uploadError}
+          </p>
         )}
-
         {data.images.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-neutral-50 p-4 border border-neutral-200">
             {data.images.map((img, i) => (
@@ -279,7 +255,8 @@ const ProjectForm = ({
           !isUploading && (
             <div className="bg-neutral-50 border border-dashed border-neutral-300 p-6 text-center">
               <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">
-                Sin imágenes agregadas — la primera foto será la imagen principal
+                Sin imágenes agregadas — la primera foto será la imagen
+                principal
               </p>
             </div>
           )
@@ -302,7 +279,6 @@ const ProjectForm = ({
   );
 };
 
-// — Interfaces —
 interface AdminPanelProps {
   projects: Project[];
   onAddProject: (proj: Project) => void;
@@ -311,7 +287,6 @@ interface AdminPanelProps {
   onCloseAdmin: () => void;
 }
 
-// — AdminPanel —
 export const AdminPanel: React.FC<AdminPanelProps> = ({
   projects,
   onAddProject,
@@ -319,13 +294,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onUpdateProject,
   onCloseAdmin,
 }) => {
-  const [activeTab, setActiveTab] = useState<"list" | "add" | "edit">("list");
+  const { categories, addCategory, deleteCategory } = useCategories();
+  const [activeTab, setActiveTab] = useState<
+    "list" | "add" | "edit" | "categories"
+  >("list");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+
+  const categoryNames = categories.map((c) => c.name);
 
   const emptyForm: ProjectFormData = {
     title: "",
-    category: PROJECT_CATEGORIES[0],
+    category: "",
     description: "",
     images: [],
   };
@@ -349,12 +331,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       images: newProject.images,
     };
     onAddProject(created);
-    showNotification("¡Proyecto creado y sincronizado al portfolio con éxito!");
+    showNotification("¡Proyecto creado y sincronizado al portfolio!");
     setNewProject(emptyForm);
     setTimeout(() => setActiveTab("list"), 2000);
   };
 
-  // — EDIT handlers —
   const handleOpenEdit = (proj: Project) => {
     setSelectedProject(proj);
     setEditProject({
@@ -380,6 +361,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setTimeout(() => setActiveTab("list"), 2000);
   };
 
+  const handleAddCategory = async () => {
+    setCategoryError(null);
+    try {
+      await addCategory(newCategoryName);
+      setNewCategoryName("");
+      showNotification("¡Categoría agregada con éxito!");
+    } catch (err: any) {
+      setCategoryError(err.message);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, name: string) => {
+    const projectsInCategory = projects.filter(
+      (p) => p.category === name,
+    ).length;
+    const msg =
+      projectsInCategory > 0
+        ? `¿Seguro? Se van a eliminar ${projectsInCategory} proyecto${projectsInCategory !== 1 ? "s" : ""} de la categoría "${name}".`
+        : `¿Seguro que querés eliminar la categoría "${name}"?`;
+    if (confirm(msg)) {
+      await deleteCategory(id, projectsInCategory);
+      showNotification("Categoría eliminada.");
+    }
+  };
+
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -388,14 +394,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     navigate("/login");
   };
 
-  const handleGoToSite = () => {
-    navigate("/");
-  };
+  const handleGoToSite = () => navigate("/");
+
+  const tabs = [
+    { id: "list", label: "Obras Almacenadas", icon: FileSpreadsheet },
+    { id: "add", label: "Agregar Nueva Obra", icon: PlusCircle },
+    { id: "edit", label: "Editar Obra", icon: Pencil },
+    { id: "categories", label: "Categorías", icon: Tag },
+  ];
 
   return (
     <div className="min-h-screen bg-[#F4F4F6] text-neutral-950 pt-24 pb-12 transition-all selection:bg-[#F27D26]/30 selection:text-neutral-900">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Title bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-neutral-200 pb-6 mb-8 gap-4 text-left">
           <div className="space-y-1.5">
             <span className="text-[10px] sm:text-xs font-mono font-bold text-[#F27D26] bg-[#F27D26]/10 px-2.5 py-1 rounded-none border border-[#F27D26]/20 inline-block tracking-wider">
@@ -432,34 +442,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest px-3 py-1">
                 Navegación CMS
               </div>
-              {[
-                {
-                  id: "list",
-                  label: "Obras Almacenadas",
-                  icon: FileSpreadsheet,
-                },
-                { id: "add", label: "Agregar Nueva Obra", icon: PlusCircle },
-                { id: "edit", label: "Editar Obra", icon: Pencil },
-              ].map((tab) => {
+              {tabs.map((tab) => {
                 const IconComp = tab.icon;
                 const isSelected = activeTab === tab.id;
+                const isEditTab = tab.id === "edit";
                 return (
                   <button
                     key={tab.id}
                     onClick={() =>
-                      tab.id !== "edit"
-                        ? setActiveTab(tab.id as "list" | "add")
-                        : null
+                      !isEditTab ? setActiveTab(tab.id as any) : null
                     }
                     className={`flex items-center gap-3 w-full px-4 py-3 text-xs font-black uppercase tracking-widest rounded-none border transition-all duration-300 text-left ${
-                      tab.id === "edit"
-                        ? "cursor-default opacity-50"
-                        : "cursor-pointer"
+                      isEditTab ? "cursor-default opacity-50" : "cursor-pointer"
                     } ${isSelected ? "bg-[#F27D26] text-black border-[#F27D26]" : "bg-white text-neutral-600 border-neutral-200/60 hover:text-neutral-900 hover:bg-neutral-50"}`}
                   >
                     <IconComp className="w-4 h-4 shrink-0" />
                     {tab.label}
-                    {tab.id === "edit" && (
+                    {isEditTab && (
                       <span className="ml-auto text-[9px] normal-case font-medium">
                         via lista
                       </span>
@@ -490,12 +489,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 {activeTab === "list" && "Biblioteca de Proyectos Activos"}
                 {activeTab === "add" && "Agregar Proyecto"}
                 {activeTab === "edit" && `Editando: ${selectedProject?.title}`}
+                {activeTab === "categories" && "Gestión de Categorías"}
               </h3>
               <p className="text-xs text-neutral-500 mt-1">
-                {activeTab === "list" && "Proyectos visibles en el portfolio. Podés editarlos o eliminarlos."}
-                {activeTab === "add" && "Completá los datos del proyecto para publicarlo en el portfolio."}
+                {activeTab === "list" &&
+                  "Proyectos visibles en el portfolio. Podés editarlos o eliminarlos."}
+                {activeTab === "add" &&
+                  "Completá los datos del proyecto para publicarlo en el portfolio."}
                 {activeTab === "edit" &&
                   "Modificá los campos que necesites y guardá los cambios."}
+                {activeTab === "categories" &&
+                  "Agregá o eliminá categorías. Al eliminar una se borran todos sus proyectos."}
               </p>
             </div>
 
@@ -545,7 +549,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </span>
                       <button
                         onClick={() => handleOpenEdit(proj)}
-                        className="p-2 rounded-none bg-white border border-neutral-200 text-neutral-500 hover:text-[#F27D26] hover:border-[#F27D26]/30 hover:bg-neutral-50 duration-200 cursor-pointer"
+                        className="p-2 rounded-none bg-white border border-neutral-200 text-neutral-500 hover:text-[#F27D26] hover:border-[#F27D26]/30 duration-200 cursor-pointer"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -560,7 +564,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             showNotification("¡Proyecto eliminado con éxito!");
                           }
                         }}
-                        className="p-2 rounded-none bg-white border border-neutral-200 text-neutral-500 hover:text-red-500 hover:border-red-200 hover:bg-neutral-50 duration-200 cursor-pointer"
+                        className="p-2 rounded-none bg-white border border-neutral-200 text-neutral-500 hover:text-red-500 hover:border-red-200 duration-200 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -577,6 +581,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 setData={setNewProject}
                 onSubmit={handleCreateProject}
                 submitLabel="Publicar en Portfolio de Acercons"
+                categoryOptions={categoryNames}
               />
             )}
 
@@ -587,7 +592,80 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 setData={setEditProject}
                 onSubmit={handleUpdateProject}
                 submitLabel="Guardar Cambios"
+                categoryOptions={categoryNames}
               />
+            )}
+
+            {/* CATEGORIES TAB */}
+            {activeTab === "categories" && (
+              <div className="space-y-6 text-left">
+                {/* Agregar nueva */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1 block">
+                    Nueva Categoría
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ej: Estructuras para Minería"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddCategory();
+                        }
+                      }}
+                      className={inputClass}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCategory}
+                      className="px-4 py-3 bg-[#F27D26] text-black font-black text-xs uppercase tracking-widest rounded-none hover:bg-orange-500 transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Plus className="w-4 h-4" /> Agregar
+                    </button>
+                  </div>
+                  {categoryError && (
+                    <p className="text-[11px] text-red-600 font-semibold">
+                      {categoryError}
+                    </p>
+                  )}
+                </div>
+
+                {/* Lista de categorías */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1 block">
+                    Categorías Actuales
+                  </label>
+                  {categories.map((cat) => {
+                    const count = projects.filter(
+                      (p) => p.category === cat.name,
+                    ).length;
+                    return (
+                      <div
+                        key={cat.id}
+                        className="flex items-center justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-none"
+                      >
+                        <div className="space-y-0.5">
+                          <p className="text-sm font-bold text-neutral-900">
+                            {cat.name}
+                          </p>
+                          <p className="text-[10px] text-neutral-400">
+                            {count} proyecto{count !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                          className="p-2 rounded-none bg-white border border-neutral-200 text-neutral-500 hover:text-red-500 hover:border-red-200 duration-200 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
         </div>

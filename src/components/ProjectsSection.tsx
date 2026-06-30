@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Project, ProjectCategory } from "../types";
+import { Project } from "../types";
 import { ChevronLeft, ChevronRight, FolderOpen, ArrowLeft } from "lucide-react";
 import { Pagination } from "./pagination";
 
@@ -8,7 +8,7 @@ interface ProjectsSectionProps {
 }
 
 interface CategoryFolder {
-  category: ProjectCategory;
+    category: string;
   coverImage: string;
   count: number;
   projects: Project[];
@@ -86,14 +86,14 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
 };
 
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) => {
-  const [openFolder, setOpenFolder] = useState<ProjectCategory | null>(null);
+  const [openFolder, setOpenFolder] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const PROJECTS_PER_PAGE = 4;
 
   // Agrupa los proyectos por categoría. Solo se incluyen categorías
   // que ya tengan al menos un proyecto cargado.
   const folders: CategoryFolder[] = useMemo(() => {
-    const groups = new Map<ProjectCategory, Project[]>();
+    const groups = new Map<string, Project[]>();
 
     projects.forEach((project) => {
       const list = groups.get(project.category) || [];
@@ -112,7 +112,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
   const activeFolder = folders.find((f) => f.category === openFolder) || null;
 
   // Resetea siempre a la página 1 cuando se abre una carpeta distinta
-  const handleOpenFolder = (category: ProjectCategory) => {
+  const handleOpenFolder = (category: string) => {
     setOpenFolder(category);
     setCurrentPage(1);
   };

@@ -3,7 +3,9 @@ import { Project } from "../types";
 
 interface GallerySectionProps {
   projects: Project[];
+  isDarkMode?: boolean;
 }
+
 
 interface GalleryItem {
   src: string;
@@ -14,11 +16,12 @@ interface GalleryItem {
 // Algunos proyectos viejos pueden no tener createdAt (campo no tipado en
 // Project), así que lo leemos de forma segura sin romper el tipado.
 const getCreatedAtMillis = (project: Project): number => {
-  const raw = (project as unknown as { createdAt?: { seconds?: number } }).createdAt;
+  const raw = (project as unknown as { createdAt?: { seconds?: number } })
+    .createdAt;
   return raw?.seconds ? raw.seconds * 1000 : 0;
 };
 
-export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
+export const GallerySection: React.FC<GallerySectionProps> = ({ projects, isDarkMode = true}) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
@@ -29,7 +32,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
   // evitando duplicar la portada si ya está dentro de images[].
   const items: GalleryItem[] = useMemo(() => {
     const sorted = [...projects].sort(
-      (a, b) => getCreatedAtMillis(b) - getCreatedAtMillis(a)
+      (a, b) => getCreatedAtMillis(b) - getCreatedAtMillis(a),
     );
 
     const result: GalleryItem[] = [];
@@ -50,7 +53,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
       });
     });
 
-    return result;
+    return result.slice(0, 20);
   }, [projects]);
 
   // Para el loop infinito visual, duplicamos la lista una vez. El scroll
@@ -86,34 +89,46 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
   // saltamos al inicio sin transición para que el loop sea invisible.
   const isHovering = useRef(false);
 
-  useEffect(() => {
-    if (items.length === 0) return;
-    let frameId: number;
+useEffect(() => {
+  if (items.length === 0) return;
+  let frameId: number;
 
-    const tick = () => {
-      const track = trackRef.current;
-      if (track && !isDragging.current && !isHovering.current) {
-        track.scrollLeft += 0.6;
-        const halfWidth = track.scrollWidth / 2;
-        if (track.scrollLeft >= halfWidth) {
-          track.scrollLeft -= halfWidth;
-        }
+  const tick = () => {
+    const track = trackRef.current;
+    if (track && !isDragging.current && !isHovering.current) {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      const halfWidth = track.scrollWidth / 2;
+
+      // Si el contenido no llega ni a llenar dos veces el ancho visible,
+      // no hay loop posible: solo permitimos que el scroll respete el límite real.
+      if (maxScroll <= 0) {
+        frameId = requestAnimationFrame(tick);
+        return;
       }
-      frameId = requestAnimationFrame(tick);
-    };
 
+      track.scrollLeft += 0.6;
+      if (track.scrollLeft >= Math.min(halfWidth, maxScroll)) {
+        track.scrollLeft -= halfWidth;
+      }
+    }
     frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-  }, [items.length]);
+  };
+
+  frameId = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(frameId);
+}, [items.length]);
 
   const handleMouseEnter = useCallback(() => {
     isHovering.current = true;
   }, []);
 
-  const handleMouseLeave = useCallback((e: React.PointerEvent) => {
-    isHovering.current = false;
-    handlePointerUp(e);
-  }, [handlePointerUp]);
+  const handleMouseLeave = useCallback(
+    (e: React.PointerEvent) => {
+      isHovering.current = false;
+      handlePointerUp(e);
+    },
+    [handlePointerUp],
+  );
 
   if (items.length === 0) {
     return null;
@@ -129,7 +144,6 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
           <h2 className="text-3xl sm:text-5xl font-black uppercase leading-tight tracking-tighter text-white">
             Calidad en cada<span className="text-[#F27D26]"> estructura</span>
           </h2>
-
         </div>
       </div>
 
@@ -146,7 +160,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
         {loopItems.map((item, index) => (
           <div
             key={`${item.key}-${index}`}
-            className="relative shrink-0 w-[200px] sm:w-[260px] aspect-[3/4] bg-black overflow-hidden border border-white/10"
+            className="relative shrink-0 w-[200px] sm:w-[260px] aspect-[3/4] text-white bg-black overflow-hidden border border-white/10"
           >
             <img
               src={item.src}
@@ -156,7 +170,9 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects }) => {
               draggable={false}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
-            <span className="absolute bottom-3 left-3 text-xs sm:text-sm font-bold text-white uppercase tracking-tight">
+            <span
+              className= "absolute bottom-3 left-3 text-x sm:text-sm font-bold text-white/99 uppercase tracking-tight "
+            >
               {item.label}
             </span>
           </div>
