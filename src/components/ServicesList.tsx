@@ -52,7 +52,7 @@ export const ServicesList: React.FC = () => {
         </div>
 
         {/* Services Grid (Razor sharp rounded-none style) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {initialServices.map((service) => (
             <div
               key={service.id}
@@ -71,7 +71,7 @@ export const ServicesList: React.FC = () => {
                   <h3 className="text-lg font-bold text-white uppercase tracking-tight group-hover:text-[#F27D26] transition-colors duration-200">
                     {service.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-white/50 leading-relaxed h-20 line-clamp-3">
+                  <p className="text-x sm:text-x text-white/70 leading-relaxed h-20 line-clamp-3">
                     {service.description}
                   </p>
                 </div>
@@ -79,11 +79,11 @@ export const ServicesList: React.FC = () => {
                 {/* Bullets List */}
                 <ul className="space-y-2 text-left pt-2">
                   {service.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2 text-xs text-white/60">
+                    <li key={i} className="flex items-center gap-2 text-x text-white/70">
                       <div className="bg-[#F27D26]/10 p-0.5 rounded-none text-[#F27D26]">
                         <Check className="w-3 h-3" />
                       </div>
-                      <span className="text-white/60 group-hover:text-white transition-colors duration-300">{feature}</span>
+                      <span className="text-white/70 group-hover:text-white transition-colors duration-300">{feature}</span>
                     </li>
                   ))}
                 </ul>

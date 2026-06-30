@@ -1,20 +1,15 @@
-export const PROJECT_CATEGORIES = [
-  "Galpones y Naves Industriales",
-  "Estructuras Metálicas",
-  "Obras Menores",
-  "Escaleras y Pasarelas",
-  "Techos Metálicos",
-] as const;
-
-export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number];
-
 export interface Project {
   id: string;
   title: string;
-  category: ProjectCategory;
+  category: string;
   description: string;
   image: string;
   images: string[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
 }
 
 export interface Service {

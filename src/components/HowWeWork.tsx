@@ -52,7 +52,7 @@ export const HowWeWork: React.FC = () => {
                     <span className="text-[9px] font-mono font-bold text-[#F27D26] uppercase tracking-[0.15em] bg-[#F27D26]/10 border border-[#F27D26]/20 px-2.5 py-1 rounded-none">
                       Paso 0{step.step}
                     </span>
-                    <span className="text-3xl font-black text-white/10 group-hover:text-[#F27D26]/20 transition-colors">
+                    <span className="text-3xl font-black text-white/70 group-hover:text-[#F27D26]/20 transition-colors">
                       0{step.step}
                     </span>
                   </div>
