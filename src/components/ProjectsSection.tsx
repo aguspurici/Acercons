@@ -87,6 +87,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
 
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) => {
   const [openFolder, setOpenFolder] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [currentPage, setCurrentPage] = useState(1);
   const PROJECTS_PER_PAGE = 4;
 
@@ -112,25 +113,30 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
   const activeFolder = folders.find((f) => f.category === openFolder) || null;
 
   // Resetea siempre a la página 1 cuando se abre una carpeta distinta
-  const handleOpenFolder = (category: string) => {
-    setOpenFolder(category);
-    setCurrentPage(1);
-  };
+const handleOpenFolder = (category: string) => {
+  setOpenFolder(category);
+  setSelectedCategory(category);
+  setCurrentPage(1);
+};
 
-  const handleCloseFolder = () => {
-    setOpenFolder(null);
-    setCurrentPage(1);
-  };
+const handleCloseFolder = () => {
+  setOpenFolder(null);
+  setSelectedCategory("Todos");
+  setCurrentPage(1);
+};
 
-  const totalPages = activeFolder
-    ? Math.ceil(activeFolder.projects.length / PROJECTS_PER_PAGE)
-    : 1;
+const filteredProjects = useMemo(() => {
+  if (selectedCategory === "Todos") return projects;
 
-  const paginatedProjects = useMemo(() => {
-    if (!activeFolder) return [];
-    const start = (currentPage - 1) * PROJECTS_PER_PAGE;
-    return activeFolder.projects.slice(start, start + PROJECTS_PER_PAGE);
-  }, [activeFolder, currentPage]);
+  return projects.filter((project) => project.category === selectedCategory);
+}, [projects, selectedCategory]);
+
+const totalPages = Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE) || 1;
+
+const paginatedProjects = useMemo(() => {
+  const start = (currentPage - 1) * PROJECTS_PER_PAGE;
+  return filteredProjects.slice(start, start + PROJECTS_PER_PAGE);
+}, [filteredProjects, currentPage]);
 
   return (
     <section id="projects" className="py-24 bg-[#0A0A0A] border-t border-white/10 relative overflow-hidden">
@@ -228,6 +234,40 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                 {activeFolder.count} Registros de Obra
               </span>
             </div>
+
+            <div className="flex flex-wrap gap-3">
+  <button
+    onClick={() => {
+      setSelectedCategory("Todos");
+      setCurrentPage(1);
+    }}
+    className={`px-5 py-2 border text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${
+      selectedCategory === "Todos"
+        ? "bg-[#F27D26] border-[#F27D26] text-white"
+        : "bg-black border-white/10 text-white/50 hover:text-white hover:border-[#F27D26]/60"
+    }`}
+  >
+    Todos
+  </button>
+
+  {folders.map((folder) => (
+    <button
+      key={folder.category}
+      onClick={() => {
+        setSelectedCategory(folder.category);
+        setOpenFolder(folder.category);
+        setCurrentPage(1);
+      }}
+      className={`px-5 py-2 border text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${
+        selectedCategory === folder.category
+          ? "bg-[#F27D26] border-[#F27D26] text-white"
+          : "bg-black border-white/10 text-white/50 hover:text-white hover:border-[#F27D26]/60"
+      }`}
+    >
+      {folder.category}
+    </button>
+  ))}
+</div>
 
             <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
               {paginatedProjects.map((project) => (
