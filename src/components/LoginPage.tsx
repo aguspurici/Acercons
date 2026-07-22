@@ -33,7 +33,7 @@ export const LoginPage = () => {
             Panel Administrativo
           </span>
           <h1 className="text-2xl font-black uppercase text-white tracking-tight">
-            Acercons Control Hub
+            Ingresá al Panel de Control
           </h1>
           <p className="text-xs text-neutral-500">
             Ingresá tus credenciales para continuar.

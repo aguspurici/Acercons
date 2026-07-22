@@ -413,7 +413,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </span>
             <h2 className="text-2xl sm:text-3xl font-black uppercase text-neutral-900 tracking-tight flex items-center gap-2.5">
               <FolderDot className="w-8 h-8 text-[#F27D26]" />
-              Acercons Control Hub
+              Panel de Control
             </h2>
             <p className="text-xs text-neutral-500">
               Gestión de obras y portfolio corporativo.
@@ -474,8 +474,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 Sincronización
               </div>
               <p className="text-[11px] text-neutral-700 leading-relaxed">
-                Los cambios se sincronizan en tiempo real con el portfolio de la
-                landing.
+                Los cambios se sincronizan en tiempo real con el portafolio de la
+                página.
               </p>
             </div>
           </div>
@@ -493,9 +493,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </h3>
               <p className="text-xs text-neutral-500 mt-1">
                 {activeTab === "list" &&
-                  "Proyectos visibles en el portfolio. Podés editarlos o eliminarlos."}
+                  "Proyectos visibles en el portafolio. Podés editarlos o eliminarlos."}
                 {activeTab === "add" &&
-                  "Completá los datos del proyecto para publicarlo en el portfolio."}
+                  "Completá los datos del proyecto para publicarlo en el portafolio."}
                 {activeTab === "edit" &&
                   "Modificá los campos que necesites y guardá los cambios."}
                 {activeTab === "categories" &&
@@ -580,7 +580,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 data={newProject}
                 setData={setNewProject}
                 onSubmit={handleCreateProject}
-                submitLabel="Publicar en Portfolio de Acercons"
+                submitLabel="Publicar en Portafolio de Acercons"
                 categoryOptions={categoryNames}
               />
             )}

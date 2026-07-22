@@ -154,7 +154,7 @@ const paginatedProjects = useMemo(() => {
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl text-left mb-16">
           <span className="text-[#F27D26] text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2">
-            <span className="w-8 h-[1px] bg-[#F27D26]"></span> Portfolio de Obra
+            <span className="w-8 h-[1px] bg-[#F27D26]"></span> Portafolio de Obra
           </span>
           <h2 className="text-3xl sm:text-5xl font-black uppercase leading-tight tracking-tighter text-white">
             Nuestros proyectos 
@@ -170,7 +170,7 @@ const paginatedProjects = useMemo(() => {
           <div className="space-y-8">
             {folders.length === 0 ? (
               <p className="text-sm text-white/40 text-center py-16">
-                Todavía no hay proyectos cargados en el portfolio.
+                Todavía no hay proyectos cargados en el portafolio.
               </p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
