@@ -21,18 +21,22 @@ import {
   Loader2,
   Tag,
   Plus,
+  Film,
+  Play,
 } from "lucide-react";
 
 const inputClass =
   "w-full bg-white border border-neutral-300 text-neutral-900 px-4 py-3 text-xs rounded-none focus:border-[#F27D26] focus:outline-none placeholder:text-neutral-400 focus:ring-0";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
 
 type ProjectFormData = {
   title: string;
   category: string;
   description: string;
   images: string[];
+  videos: string[];
 };
 
 const uploadImageToStorage = (
@@ -42,6 +46,35 @@ const uploadImageToStorage = (
   return new Promise((resolve, reject) => {
     const uniqueName = `${Date.now()}-${Math.floor(Math.random() * 10000)}-${file.name}`;
     const storageRef = ref(storage, `projects/${uniqueName}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const pct = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+        );
+        onProgress(pct);
+      },
+      (error) => reject(error),
+      async () => {
+        try {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(url);
+        } catch (err) {
+          reject(err);
+        }
+      },
+    );
+  });
+};
+
+const uploadVideoToStorage = (
+  file: File,
+  onProgress: (pct: number) => void,
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uniqueName = `${Date.now()}-${Math.floor(Math.random() * 10000)}-${file.name}`;
+    const storageRef = ref(storage, `projects/videos/${uniqueName}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
     uploadTask.on(
       "state_changed",
@@ -78,9 +111,12 @@ const ProjectForm = ({
   categoryOptions: string[];
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadingVideos, setUploadingVideos] = useState(false);
+  const [videoProgress, setVideoProgress] = useState<number>(0);
 
   const handleFilesSelected = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -128,11 +164,75 @@ const ProjectForm = ({
     }
   };
 
+  const handleVideoSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploadError(null);
+
+    const allFiles = Array.from(files);
+    const oversizedFiles = allFiles.filter(
+      (f) => f.size > MAX_VIDEO_SIZE_BYTES,
+    );
+    const validFiles = allFiles.filter((f) => f.size <= MAX_VIDEO_SIZE_BYTES);
+
+    if (oversizedFiles.length > 0) {
+      const names = oversizedFiles.map((f) => f.name).join(", ");
+      const sizes = oversizedFiles
+        .map((f) => (f.size / (1024 * 1024)).toFixed(1) + "MB")
+        .join(", ");
+      setUploadError(
+        `${oversizedFiles.length === 1 ? "Este video" : "Estos videos"} pesa${oversizedFiles.length === 1 ? "" : "n"} más de 500MB (${sizes}): ${names}.`,
+      );
+    }
+
+    if (validFiles.length === 0) {
+      if (videoInputRef.current) videoInputRef.current.value = "";
+      return;
+    }
+
+    setUploadingVideos(true);
+    setVideoProgress(0);
+
+    try {
+      const uploadedUrls: string[] = [];
+      for (let i = 0; i < validFiles.length; i++) {
+        const url = await uploadVideoToStorage(validFiles[i], (pct) => {
+          const overall = Math.round(
+            ((i + pct / 100) / validFiles.length) * 100,
+          );
+          setVideoProgress(overall);
+        });
+        uploadedUrls.push(url);
+      }
+      setData({ ...data, videos: [...data.videos, ...uploadedUrls] });
+    } catch (err) {
+      console.error(err);
+      setUploadError("No se pudo subir uno o más videos. Probá de nuevo.");
+    } finally {
+      setUploadingVideos(false);
+      setVideoProgress(0);
+      if (videoInputRef.current) videoInputRef.current.value = "";
+    }
+  };
+
   const handleRemoveImg = (index: number) => {
     setData({ ...data, images: data.images.filter((_, i) => i !== index) });
   };
 
+  const handleRemoveVideo = (index: number) => {
+    setData({ ...data, videos: data.videos.filter((_, i) => i !== index) });
+  };
+
   const isUploading = uploadingCount > 0;
+  const isUploadingVideo = uploadingVideos;
+
+  // Array combinado de fotos y videos para mostrar en grid
+  const allMedia = [
+    ...data.images.map((url, i) => ({ type: "image" as const, url, index: i })),
+    ...data.videos.map((url, i) => ({ type: "video" as const, url, index: i })),
+  ];
 
   return (
     <form onSubmit={onSubmit} className="space-y-6 text-left">
@@ -186,63 +286,116 @@ const ProjectForm = ({
         />
       </div>
 
+      {/* SECCIÓN DE FOTOS Y VIDEOS COMBINADOS */}
       <div className="space-y-3">
         <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest pl-1 block">
-          Imágenes del Proyecto
+          Fotos y Videos del Proyecto
         </label>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleFilesSelected}
-          className="hidden"
-          id="project-image-upload"
-        />
-        <label
-          htmlFor="project-image-upload"
-          className={`flex items-center justify-center gap-2 w-full px-4 py-4 border border-dashed font-black text-xs uppercase tracking-widest rounded-none transition-all cursor-pointer ${
-            isUploading
-              ? "border-neutral-300 bg-neutral-100 text-neutral-400 cursor-not-allowed"
-              : "border-[#F27D26]/40 bg-[#FFF6F0] text-[#F27D26] hover:bg-[#F27D26]/10"
-          }`}
-        >
-          {isUploading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Subiendo... {uploadProgress}%
-            </>
-          ) : (
-            <>
-              <UploadCloud className="w-4 h-4" />
-              Subir Fotos desde el Dispositivo
-            </>
-          )}
-        </label>
+
+        {/* Upload Fotos */}
+        <div className="space-y-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFilesSelected}
+            className="hidden"
+            id="project-image-upload"
+          />
+          <label
+            htmlFor="project-image-upload"
+            className={`flex items-center justify-center gap-2 w-full px-4 py-4 border border-dashed font-black text-xs uppercase tracking-widest rounded-none transition-all cursor-pointer ${
+              isUploading
+                ? "border-neutral-300 bg-neutral-100 text-neutral-400 cursor-not-allowed"
+                : "border-[#F27D26]/40 bg-[#FFF6F0] text-[#F27D26] hover:bg-[#F27D26]/10"
+            }`}
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Subiendo fotos... {uploadProgress}%
+              </>
+            ) : (
+              <>
+                <UploadCloud className="w-4 h-4" />
+                Subir Fotos desde el Dispositivo
+              </>
+            )}
+          </label>
+        </div>
+
+        {/* Upload Videos */}
+        <div className="space-y-2">
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime"
+            multiple
+            onChange={handleVideoSelected}
+            className="hidden"
+            id="project-video-upload"
+          />
+          <label
+            htmlFor="project-video-upload"
+            className={`flex items-center justify-center gap-2 w-full px-4 py-4 border border-dashed font-black text-xs uppercase tracking-widest rounded-none transition-all cursor-pointer ${
+              isUploadingVideo
+                ? "border-neutral-300 bg-neutral-100 text-neutral-400 cursor-not-allowed"
+                : "border-blue-400/40 bg-blue-50 text-blue-600 hover:bg-blue-400/10"
+            }`}
+          >
+            {isUploadingVideo ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Subiendo video... {videoProgress}%
+              </>
+            ) : (
+              <>
+                <UploadCloud className="w-4 h-4" />
+                Subir Videos (MP4, WebM, MOV - Máx 500MB)
+              </>
+            )}
+          </label>
+        </div>
+
         {uploadError && (
           <p className="text-[11px] text-red-600 font-semibold">
             {uploadError}
           </p>
         )}
-        {data.images.length > 0 ? (
+
+        {/* Grid de Fotos y Videos */}
+        {allMedia.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-neutral-50 p-4 border border-neutral-200">
-            {data.images.map((img, i) => (
-              <div key={i} className="relative group">
-                <div className="aspect-[4/3] overflow-hidden border border-neutral-200 bg-black">
-                  <img
-                    src={img}
-                    alt={`Foto ${i + 1}`}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+            {allMedia.map((media, i) => (
+              <div key={`${media.type}-${media.index}`} className="relative group">
+                <div className="aspect-[4/3] overflow-hidden border border-neutral-200 bg-black flex items-center justify-center">
+                  {media.type === "image" ? (
+                    <img
+                      src={media.url}
+                      alt={`Foto ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <>
+                      <div className="w-full h-full bg-black/80 flex items-center justify-center">
+                        <Play className="w-10 h-10 text-white/60 fill-white/60" />
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="flex items-center justify-between mt-1 px-0.5">
                   <span className="text-[9px] text-neutral-400 font-bold uppercase">
-                    {i === 0 ? "Principal" : `Foto ${i + 1}`}
+                    {media.type === "image" ? "Foto" : "Video"} {media.index + 1}
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleRemoveImg(i)}
+                    onClick={() =>
+                      media.type === "image"
+                        ? handleRemoveImg(media.index)
+                        : handleRemoveVideo(media.index)
+                    }
                     className="text-red-400 hover:text-red-600 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -252,10 +405,11 @@ const ProjectForm = ({
             ))}
           </div>
         ) : (
-          !isUploading && (
+          !isUploading &&
+          !isUploadingVideo && (
             <div className="bg-neutral-50 border border-dashed border-neutral-300 p-6 text-center">
               <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">
-                Sin imágenes agregadas — la primera foto será la imagen
+                Sin fotos ni videos agregados — la primera foto será la imagen
                 principal
               </p>
             </div>
@@ -265,9 +419,9 @@ const ProjectForm = ({
 
       <button
         type="submit"
-        disabled={isUploading}
+        disabled={isUploading || isUploadingVideo}
         className={`w-full py-4 font-black text-xs uppercase tracking-widest rounded-none shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-          isUploading
+          isUploading || isUploadingVideo
             ? "bg-neutral-300 text-neutral-500 cursor-not-allowed"
             : "bg-[#F27D26] text-black hover:bg-orange-500 cursor-pointer"
         }`}
@@ -310,6 +464,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     category: "",
     description: "",
     images: [],
+    videos: [],
   };
 
   const [newProject, setNewProject] = useState<ProjectFormData>(emptyForm);
@@ -329,6 +484,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       description: newProject.description,
       image: newProject.images[0] || "",
       images: newProject.images,
+      videos: newProject.videos.length > 0 ? newProject.videos : undefined,
     };
     onAddProject(created);
     showNotification("¡Proyecto creado y sincronizado al portfolio!");
@@ -343,6 +499,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       category: proj.category,
       description: proj.description,
       images: proj.images,
+      videos: proj.videos || [],
     });
     setActiveTab("edit");
   };
@@ -356,6 +513,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       description: editProject.description,
       image: editProject.images[0] || "",
       images: editProject.images,
+      videos: editProject.videos.length > 0 ? editProject.videos : undefined,
     });
     showNotification("¡Proyecto actualizado con éxito!");
     setTimeout(() => setActiveTab("list"), 2000);
@@ -416,7 +574,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               Panel de Control
             </h2>
             <p className="text-xs text-neutral-500">
-              Gestión de obras y portfolio corporativo.
+              Gestión de obras, videos y portfolio corporativo.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -475,7 +633,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
               <p className="text-[11px] text-neutral-700 leading-relaxed">
                 Los cambios se sincronizan en tiempo real con el portafolio de la
-                página.
+                página. Incluye fotos y videos.
               </p>
             </div>
           </div>
@@ -518,20 +676,35 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     No hay proyectos cargados todavía.
                   </p>
                 )}
-                {projects.map((proj) => (
+                {projects.map((proj) => {
+                  // Si hay imagen, mostrar imagen. Si no, mostrar negro con play
+                  const hasImage = proj.image && proj.image.trim().length > 0;
+                  const hasVideo = proj.videos && proj.videos.length > 0;
+                  
+                  return (
                   <div
                     key={proj.id}
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-none gap-4"
                   >
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={proj.image}
-                        alt="Thumbnail"
-                        className="w-16 h-12 object-cover rounded-none bg-black shrink-0 border border-neutral-200"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="text-left space-y-1">
-                        <span className="text-[9px] font-black text-[#F27D26] uppercase tracking-widest bg-white border border-neutral-200 px-2 py-0.5">
+                    <div className="flex items-center gap-4 flex-1">
+                      {hasImage ? (
+                        <img
+                          src={proj.image}
+                          alt="Thumbnail"
+                          className="w-16 h-12 object-cover rounded-none bg-black shrink-0 border border-neutral-200"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-16 h-12 bg-black rounded-none shrink-0 border border-neutral-200 flex items-center justify-center">
+                          {hasVideo ? (
+                            <Film className="w-5 h-5 text-white/60" />
+                          ) : (
+                            <span className="text-[8px] text-white/40 text-center">Sin media</span>
+                          )}
+                        </div>
+                      )}
+                      <div className="text-left space-y-1 flex-1">
+                        <span className="text-[9px] font-black text-[#F27D26] uppercase tracking-widest bg-white border border-neutral-200 px-2 py-0.5 inline-block">
                           {proj.category}
                         </span>
                         <h4 className="text-sm font-bold uppercase text-neutral-900 line-clamp-1">
@@ -542,11 +715,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 self-end sm:self-auto">
-                      <span className="text-[9px] font-bold text-neutral-400 uppercase bg-neutral-100 border border-neutral-200 px-2 py-1">
+                    <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap sm:flex-nowrap justify-end">
+                      <span className="text-[9px] font-bold text-neutral-400 uppercase bg-neutral-100 border border-neutral-200 px-2 py-1 whitespace-nowrap">
                         {proj.images.length} foto
                         {proj.images.length !== 1 ? "s" : ""}
                       </span>
+                      {proj.videos && proj.videos.length > 0 && (
+                        <span className="text-[9px] font-bold text-blue-600 uppercase bg-blue-50 border border-blue-200 px-2 py-1 whitespace-nowrap flex items-center gap-1">
+                          <Film className="w-3 h-3" />
+                          {proj.videos.length}
+                        </span>
+                      )}
                       <button
                         onClick={() => handleOpenEdit(proj)}
                         className="p-2 rounded-none bg-white border border-neutral-200 text-neutral-500 hover:text-[#F27D26] hover:border-[#F27D26]/30 duration-200 cursor-pointer"
@@ -570,7 +749,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

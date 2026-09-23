@@ -5,6 +5,7 @@ export interface Project {
   description: string;
   image: string;
   images: string[];
+  videos?: string[]; // Array de URLs de videos en Firebase
 }
 
 export interface Category {
