@@ -6,7 +6,6 @@ interface GallerySectionProps {
   isDarkMode?: boolean;
 }
 
-
 interface GalleryItem {
   src: string;
   label: string;
@@ -27,9 +26,8 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects, isDark
   const dragStartX = useRef(0);
   const scrollStartLeft = useRef(0);
 
-  // Arma la lista plana de imágenes (image + images[]) a partir de los
-  // proyectos, ordenando por fecha de creación (más nuevo primero) y
-  // evitando duplicar la portada si ya está dentro de images[].
+  // Arma la lista plana de imágenes (solo imágenes, sin videos)
+  // a partir de los proyectos, ordenando por fecha de creación (más nuevo primero)
   const items: GalleryItem[] = useMemo(() => {
     const sorted = [...projects].sort(
       (a, b) => getCreatedAtMillis(b) - getCreatedAtMillis(a),
@@ -85,8 +83,6 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ projects, isDark
 
   // Autoplay tipo cinta: mueve scrollLeft de a poco en cada frame.
   // Se pausa mientras el usuario arrastra o tiene el mouse encima.
-  // Como loopItems es items duplicado, al pasar la mitad del scroll
-  // saltamos al inicio sin transición para que el loop sea invisible.
   const isHovering = useRef(false);
 
 useEffect(() => {
@@ -99,8 +95,6 @@ useEffect(() => {
       const maxScroll = track.scrollWidth - track.clientWidth;
       const halfWidth = track.scrollWidth / 2;
 
-      // Si el contenido no llega ni a llenar dos veces el ancho visible,
-      // no hay loop posible: solo permitimos que el scroll respete el límite real.
       if (maxScroll <= 0) {
         frameId = requestAnimationFrame(tick);
         return;
@@ -171,7 +165,7 @@ useEffect(() => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
             <span
-              className= "absolute bottom-3 left-3 text-x sm:text-sm font-bold text-white/99 uppercase tracking-tight "
+              className= "absolute bottom-3 left-3 text-xs sm:text-sm font-bold text-white/99 uppercase tracking-tight "
             >
               {item.label}
             </span>
